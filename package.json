@@ -12,8 +12,8 @@
     "build": "lerna run build",
     "clean": "lerna clean -y && lerna run clean",
     "flow": "lerna exec flow check",
-    "format": "prettier --write 'packages/**/*.js'",
-    "format:check": "prettier --check 'packages/**/*.js'"
+    "format": "prettier --write packages/**/*.ts",
+    "format:check": "prettier --check packages/**/*.ts"
   },
   "devDependencies": {
     "concurrently": "^5.0.2",

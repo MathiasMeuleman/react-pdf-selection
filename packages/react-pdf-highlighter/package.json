@@ -2,14 +2,12 @@
   "name": "react-pdf-highlighter",
   "version": "3.3.0",
   "description": "Set of React components for PDF annotation",
-  "main": "build/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "npm run watch",
-    "build": "NODE_ENV=production babel src -d build --copy-files",
-    "watch": "NODE_ENV=development babel --watch src -d build --copy-files",
-    "copy-flow": "flow-copy-source src build",
-    "clean": "rm -rf build",
-    "prepublishOnly": "npm run build && npm run copy-flow"
+    "build": "tsc",
+    "clean": "rm -rf dist/",
+    "start": "npm run watch"
   },
   "dependencies": {
     "lodash.debounce": "^4.0.8",
@@ -18,22 +16,20 @@
     "react-rnd": "^10.1.10"
   },
   "peerDependencies": {
-    "react": ">=0.14",
-    "react-dom": ">=0.14"
+    "react": ">=16.4",
+    "react-dom": ">=16.4"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/preset-flow": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
+    "@types/react": "^16.4.2",
+    "@types/react-dom": "^16.4.2",
     "flow-bin": "^0.130.0",
     "flow-copy-source": "^2.0.9",
     "flow-typed": "^3.2.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "typescript": "^4.1.3"
   },
-  "author": "Artem Tyurin <artem.tyurin@gmail.com>",
+  "author": "Mathias Meuleman <meuleman.mathias@gmail.com>",
   "license": "MIT",
   "keywords": [
     "pdf",
@@ -42,15 +38,14 @@
     "react-component"
   ],
   "files": [
-    "build",
-    "src"
+    "dist"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentcooper/react-pdf-highlighter.git"
+    "url": "git+https://github.com/MathiasMeuleman/react-pdf-highlighter.git"
   },
   "bugs": {
-    "url": "https://github.com/agentcooper/react-pdf-highlighter/issues"
+    "url": "https://github.com/MathiasMeuleman/react-pdf-highlighter/issues"
   },
-  "homepage": "https://github.com/agentcooper/react-pdf-highlighter#readme"
+  "homepage": "https://github.com/MathiasMeuleman/react-pdf-highlighter#readme"
 }
