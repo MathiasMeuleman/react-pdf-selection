@@ -1,11 +1,8 @@
-
 import {getDocument, GlobalWorkerOptions, PDFDocumentProxy} from "pdfjs-dist";
 import React, {Component, ReactElement} from "react";
-// @ts-ignore-next-line
-import workerUrl from "pdfjs-dist/build/pdf.worker.js";
 
 // Set the PDF worker
-GlobalWorkerOptions.workerSrc = workerUrl;
+GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
 
 type PdfLoaderProps = {
     url: string,
@@ -21,6 +18,11 @@ type PdfLoaderState = {
 };
 
 class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
+
+    constructor(props: PdfLoaderProps) {
+        super(props);
+        this.state = {};
+    }
 
     discardDocument(document?: PDFDocumentProxy) {
         document && document.destroy();
