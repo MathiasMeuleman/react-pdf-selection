@@ -22,8 +22,6 @@ type PdfLoaderState = {
 
 class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
 
-    documentRef = React.createRef<HTMLElement>();
-
     discardDocument(document?: PDFDocumentProxy) {
         document && document.destroy();
     }
@@ -71,16 +69,11 @@ class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
         const { children, beforeLoad } = this.props;
         const { pdfDocument, error } = this.state;
 
-        return (
-            <>
-                <span ref={this.documentRef} />
-                {error
-                    ? this.renderError()
-                    : !pdfDocument || !children
-                        ? beforeLoad
-                        : children(pdfDocument)}
-            </>
-        );
+        return error
+            ? this.renderError()
+            : !pdfDocument || !children
+                ? beforeLoad
+                : children(pdfDocument);
     }
 
     renderError() {
