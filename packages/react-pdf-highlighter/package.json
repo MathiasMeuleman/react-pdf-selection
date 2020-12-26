@@ -1,11 +1,11 @@
 {
-  "name": "react-pdf-highlighter",
+  "name": "react-pdf-annotator",
   "version": "3.3.0",
   "description": "Set of React components for PDF annotation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && copyfiles --up 1 ./src/style/* ./dist && copyfiles ./package.json ./dist",
     "clean": "rm -rf dist/",
     "start": "npm run watch"
   },
@@ -24,6 +24,7 @@
     "@types/pdfjs-dist": "^2.1.7",
     "@types/react": "^16.4.2",
     "@types/react-dom": "^16.4.2",
+    "copyfiles": "^2.4.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "typescript": "^4.1.3"
@@ -41,10 +42,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MathiasMeuleman/react-pdf-highlighter.git"
+    "url": "git+https://github.com/MathiasMeuleman/react-pdf-annotator.git"
   },
   "bugs": {
-    "url": "https://github.com/MathiasMeuleman/react-pdf-highlighter/issues"
+    "url": "https://github.com/MathiasMeuleman/react-pdf-annotator/issues"
   },
-  "homepage": "https://github.com/MathiasMeuleman/react-pdf-highlighter#readme"
+  "homepage": "https://github.com/MathiasMeuleman/react-pdf-annotator#readme"
 }
