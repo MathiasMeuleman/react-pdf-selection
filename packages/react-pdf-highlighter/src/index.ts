@@ -1,5 +1,5 @@
-import PdfLoader from "./PdfLoader";
-import PdfViewer from "./PdfViewer";
+import PdfLoader from "./components/PdfLoader";
+import PdfViewer from "./components/PdfViewer";
 
 export {
     PdfLoader,

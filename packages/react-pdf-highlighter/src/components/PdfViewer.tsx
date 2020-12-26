@@ -13,7 +13,7 @@ import {
     ScaledPosition,
     Viewer as ViewerType,
     ViewportHighlight,
-} from "./types";
+} from "../types";
 import {
     findOrCreateContainerLayer, getBoundingRect,
     getClientRects,
@@ -21,7 +21,10 @@ import {
     getWindow,
     scaledToViewport,
     viewportToScaled,
-} from "./utils";
+} from "../utils";
+
+import "pdfjs-dist/web/pdf_viewer.css";
+import "../style/pdf_viewer.css";
 
 type PdfViewerState = {
     ghostHighlight?: {
