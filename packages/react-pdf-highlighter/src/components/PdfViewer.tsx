@@ -24,7 +24,6 @@ import {
 } from "../utils";
 
 import "pdfjs-dist/web/pdf_viewer.css";
-import "../style/pdf_viewer.css";
 
 type PdfViewerState = {
     ghostHighlight?: {
