@@ -6,7 +6,7 @@
 // for clarity reasons I decided not to store actual (0, 1) coordinates, but
 // provide width and height, so user can compute ratio himself if needed
 
-import type { T_LTWH, T_Scaled, T_VIEWPORT } from "../types";
+import type { T_LTWH, T_Scaled, T_VIEWPORT } from "../../types";
 
 type WIDTH_HEIGHT = { width: number, height: number };
 

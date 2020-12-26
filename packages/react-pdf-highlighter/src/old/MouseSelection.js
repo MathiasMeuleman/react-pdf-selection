@@ -2,7 +2,7 @@
 
 import React, { Component } from "react";
 
-import { asElement, isHTMLElement } from "../lib/pdfjs-dom";
+import { asElement, isHTMLElement } from "./lib/pdfjs-dom";
 import "../style/MouseSelection.css";
 
 import type { T_LTWH } from "../types.js";

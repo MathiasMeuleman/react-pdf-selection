@@ -12,9 +12,9 @@ import "../style/pdf_viewer.css";
 
 import "../style/PdfHighlighter.css";
 
-import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
-import getAreaAsPng from "../lib/get-area-as-png";
+import getBoundingRect from "./lib/get-bounding-rect";
+import getClientRects from "./lib/get-client-rects";
+import getAreaAsPng from "./lib/get-area-as-png";
 
 import {
   asElement,
@@ -23,12 +23,12 @@ import {
   getWindow,
   findOrCreateContainerLayer,
   isHTMLElement
-} from "../lib/pdfjs-dom";
+} from "./lib/pdfjs-dom";
 
 import TipContainer from "./TipContainer";
 import MouseSelection from "./MouseSelection";
 
-import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
+import { scaledToViewport, viewportToScaled } from "./lib/coordinates";
 
 import type {
   T_Position,

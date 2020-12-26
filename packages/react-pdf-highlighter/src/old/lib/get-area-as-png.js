@@ -1,5 +1,5 @@
 // @flow
-import { isHTMLCanvasElement } from "../lib/pdfjs-dom";
+import { isHTMLCanvasElement } from "./pdfjs-dom";
 import type { T_LTWH } from "../types.js";
 
 const getAreaAsPNG = (canvas: HTMLCanvasElement, position: T_LTWH): string => {
