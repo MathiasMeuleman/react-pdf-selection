@@ -31,6 +31,10 @@ export type ScaledPosition = {
     usePdfCoordinates?: boolean
 };
 
+export type HighlightId = {
+    id: string
+}
+
 export type Content = {
     text?: string,
     image?: string
@@ -48,16 +52,16 @@ export type HighlightComment = {
     comment: Comment
 };
 
-export type NewHighlight = {
+export type Highlight = {
     position: ScaledPosition
-} & HighlightContent &
+} & HighlightId &
+    HighlightContent &
     HighlightComment;
-
-export type Highlight = {id: string} & NewHighlight;
 
 export type ViewportHighlight = {
     position: Position
-} & HighlightContent &
+} & HighlightId &
+    HighlightContent &
     HighlightComment;
 
 export type EventBus = {

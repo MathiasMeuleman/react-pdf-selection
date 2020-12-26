@@ -7,8 +7,11 @@ import {
     getWindow,
     isHTMLCanvasElement,
 } from "./dom";
+import {getBoundingRect, getClientRects} from "./rects";
 
 export {
+    getBoundingRect,
+    getClientRects,
     getDocument,
     findOrCreateContainerLayer,
     getWindow,
