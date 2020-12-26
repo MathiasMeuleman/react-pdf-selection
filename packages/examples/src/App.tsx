@@ -1,7 +1,13 @@
 import React, {ReactElement} from "react";
-import {PdfViewer} from "react-pdf-highlighter";
-import PdfLoader from "react-pdf-highlighter/dist/PdfLoader";
-import {BoundingRect, Content, Scaled, ScaledPosition, ViewportHighlight} from "react-pdf-highlighter/dist/types";
+import {
+    BoundingRect,
+    Content,
+    PdfLoader,
+    PdfViewer,
+    Scaled,
+    ScaledPosition,
+    ViewportHighlight,
+} from "react-pdf-annotator";
 
 function App() {
 
