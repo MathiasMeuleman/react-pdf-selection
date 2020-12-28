@@ -1,5 +1,5 @@
-import PdfLoader from "./components/PdfLoader";
-import PdfViewer from "./components/PdfViewer";
+import {PdfLoader} from "./components/PdfLoader";
+import {PdfViewer} from "./components/PdfViewer";
 import {
     BoundingRect,
     EventBus,

@@ -17,7 +17,7 @@ type PdfLoaderState = {
     error?: Error,
 };
 
-class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
+export class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
 
     constructor(props: PdfLoaderProps) {
         super(props);
@@ -87,5 +87,3 @@ class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
         return null;
     }
 }
-
-export default PdfLoader;

@@ -46,8 +46,8 @@ export type HighlightContent = {
 
 export type Comment = {
     text: string,
-    emoji: string
 };
+
 export type HighlightComment = {
     comment: Comment
 };
