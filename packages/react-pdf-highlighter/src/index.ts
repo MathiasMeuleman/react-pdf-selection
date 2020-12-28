@@ -1,5 +1,5 @@
 import {PdfLoader} from "./components/PdfLoader";
-import {PdfViewer} from "./components/PdfViewer";
+import {PdfViewer, HighlightTip, Position} from "./components/PdfViewer";
 import {
     BoundingRect,
     EventBus,
@@ -9,7 +9,6 @@ import {
     HighlightContent,
     HighlightId,
     LinkService,
-    Position,
     Scaled,
     ScaledPosition,
     Viewer,
@@ -28,6 +27,7 @@ export {
     ViewportHighlight,
     Content,
     Highlight,
+    HighlightTip,
     HighlightComment,
     HighlightContent,
     HighlightId,

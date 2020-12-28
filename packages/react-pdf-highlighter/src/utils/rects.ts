@@ -83,7 +83,7 @@ export const getClientRects = (
     containerEl: HTMLElement,
     shouldOptimize: boolean = true
 ): Array<BoundingRect> => {
-    let clientRects = Array.from(range.getClientRects());
+    const clientRects = Array.from(range.getClientRects());
 
     const offset = containerEl.getBoundingClientRect();
 
