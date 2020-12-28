@@ -5,18 +5,18 @@ import {
     getPageFromElement,
     getPageFromRange,
     getWindow,
-    isHTMLCanvasElement,
 } from "./dom";
+import {getAreaAsPNG} from "./image";
 import {getBoundingRect, getClientRects} from "./rects";
 
 export {
     getBoundingRect,
     getClientRects,
     getDocument,
+    getAreaAsPNG,
     findOrCreateContainerLayer,
     getWindow,
     getPageFromRange,
-    isHTMLCanvasElement,
     getPageFromElement,
     scaledToViewport,
     viewportToScaled,

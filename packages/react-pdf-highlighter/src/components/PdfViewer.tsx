@@ -7,6 +7,7 @@ import {getBoundingRect, getClientRects, getPageFromElement, getPageFromRange, g
 
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
+import {getAreaAsPNG} from "../utils";
 import {AreaSelection} from "./AreaSelection";
 
 export type Coords = {
@@ -160,6 +161,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     onAreaSelectEnd = (event: MouseEvent) => {
+        if (!this.state.viewer)
+            return;
         const { areaSelection } = this.state;
         if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked)
             return;
@@ -175,7 +178,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         const pageOffset = this.getPageOffset(page.number);
         const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
         const position: Position = { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset };
-        this.props.onAreaSelection?.({ position, image: "" });
+        const image = getAreaAsPNG(this.state.viewer.getPageView(page.number - 1).canvas, boundingRect);
+        this.props.onAreaSelection?.({ position, image });
         this.setState({
             areaSelection: { ...areaSelection, end, position, locked: true },
             textSelectionEnabled: true,

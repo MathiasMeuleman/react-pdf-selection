@@ -4,10 +4,6 @@ export const getDocument = (elm: any): Document =>
 export const getWindow = (elm: any): typeof window =>
     (getDocument(elm) || {}).defaultView || window;
 
-export const isHTMLCanvasElement = (elm: any) =>
-    elm instanceof HTMLCanvasElement ||
-    elm instanceof getWindow(elm).HTMLCanvasElement;
-
 export const getPageFromElement = (target: HTMLElement) => {
     const node = target.closest<HTMLElement>(".page");
 
