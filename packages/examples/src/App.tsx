@@ -1,40 +1,26 @@
-import React, {ReactElement} from "react";
-import {
-    BoundingRect,
-    Content,
-    PdfLoader,
-    PdfViewer,
-    Scaled,
-    ScaledPosition,
-    ViewportHighlight,
-} from "react-pdf-annotator";
+import React, {useState} from "react";
+import {AreaHighlightTip, PdfLoader, PdfViewer, TextHighlightTip} from "react-pdf-annotator";
+
+import "./HighlightTip.css";
 
 function App() {
+    const urls = ["https://arxiv.org/pdf/1708.08021.pdf", "https://arxiv.org/pdf/1604.02480.pdf"];
+    const [urlIdx, setUrlIdx] = useState(0);
+    const [highlightTip, setHighlightTip] = useState<TextHighlightTip | AreaHighlightTip>();
+    const toggleUrl = () => setUrlIdx(urlIdx > 0 ? 0 : 1);
 
-    const highlightTransform = (
-        highlight: ViewportHighlight,
-        index: number,
-        setTip: (
-            highlight: ViewportHighlight,
-            callback: (highlight: ViewportHighlight) => ReactElement,
-        ) => void,
-        hideTip: () => void,
-        viewportToScaled: (rect: BoundingRect) => Scaled,
-        screenshot: (position: BoundingRect) => string,
-        isScrolledTo: boolean,
-    ) => {
-        console.log(highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo);
-        return <React.Fragment key={index}></React.Fragment>;
-    };
+    const renderHighlightTip = (highlightTip: TextHighlightTip | AreaHighlightTip) => (
+        <div
+            className="pdfViewer__highlight-tip"
+            style={{
+                top: highlightTip.position.pageOffset + highlightTip.position.boundingRect.top - 40,
+            }}
+        >Add highlight</div>
+    );
 
-    const onSelectionFinished = (
-        position: ScaledPosition,
-        content: Content,
-        hideTipAndSelection: () => void,
-        transformSelection: () => void,
-    ) => {
-        console.log(position, content, hideTipAndSelection, transformSelection);
-        return undefined;
+    const setAndLogSelection = (highlightTip?: TextHighlightTip | AreaHighlightTip) => {
+        console.log(highlightTip);
+        setHighlightTip(highlightTip);
     };
 
     return (
@@ -46,23 +32,28 @@ function App() {
                 textAlign: "center",
             }}
         >
-            <PdfLoader url={"https://arxiv.org/pdf/1708.08021.pdf"} beforeLoad={<h1>Loading...</h1>}>
+            <PdfLoader url={urls[urlIdx]} beforeLoad={<h1>Loading...</h1>}>
                 {(pdfDocument) => (
                     <PdfViewer
-                        enableAreaSelection={(event: MouseEvent) => event.altKey}
                         pdfDocument={pdfDocument}
-                        scrollRef={scrollTo => {
-                            console.log(scrollTo);
-                        }}
-                        onScrollChange={() => {
-                            console.log("Scroll changed");
-                        }}
-                        highlightTransform={highlightTransform}
-                        // onSelectionFinished={onSelectionFinished}
-                        highlights={[]}
-                    />
+                        enableAreaSelection={event => event.altKey}
+                        onTextSelection={setAndLogSelection}
+                        onAreaSelection={setAndLogSelection}
+                    >
+                        <div className="pdfViewer__highlight-tip-container">
+                            {highlightTip && renderHighlightTip(highlightTip)}
+                        </div>
+                    </PdfViewer>
                 )}
             </PdfLoader>
+            <div style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                zIndex: 99,
+            }}>
+                <button onClick={() => toggleUrl()}>Switch document</button>
+            </div>
         </div>
     );
 }

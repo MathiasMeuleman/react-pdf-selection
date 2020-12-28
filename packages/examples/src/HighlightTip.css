@@ -1,0 +1,14 @@
+.pdfViewer__highlight-tip {
+    position: absolute;
+    z-index: 99;
+    width: 120px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    cursor: pointer;
+    background-color: #3d464d;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
