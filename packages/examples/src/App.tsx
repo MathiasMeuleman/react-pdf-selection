@@ -1,26 +1,15 @@
 import React, {useState} from "react";
-import {AreaHighlightTip, PdfLoader, PdfViewer, TextHighlightTip} from "react-pdf-annotator";
-
-import "./HighlightTip.css";
+import {SelectionType, PdfLoader, PdfViewer, SelectionTooltip} from "react-pdf-annotator";
 
 function App() {
     const urls = ["https://arxiv.org/pdf/1708.08021.pdf", "https://arxiv.org/pdf/1604.02480.pdf"];
     const [urlIdx, setUrlIdx] = useState(0);
-    const [highlightTip, setHighlightTip] = useState<TextHighlightTip | AreaHighlightTip>();
+    const [selection, setSelection] = useState<SelectionType>();
     const toggleUrl = () => setUrlIdx(urlIdx > 0 ? 0 : 1);
 
-    const renderHighlightTip = (highlightTip: TextHighlightTip | AreaHighlightTip) => (
-        <div
-            className="pdfViewer__highlight-tip"
-            style={{
-                top: highlightTip.position.pageOffset + highlightTip.position.boundingRect.top - 40,
-            }}
-        >Add highlight</div>
-    );
-
-    const setAndLogSelection = (highlightTip?: TextHighlightTip | AreaHighlightTip) => {
+    const setAndLogSelection = (highlightTip?: SelectionType) => {
         console.log(highlightTip);
-        setHighlightTip(highlightTip);
+        setSelection(highlightTip);
     };
 
     return (
@@ -41,7 +30,7 @@ function App() {
                         onAreaSelection={setAndLogSelection}
                     >
                         <div className="pdfViewer__highlight-tip-container">
-                            {highlightTip && renderHighlightTip(highlightTip)}
+                            {selection && <SelectionTooltip selection={selection} />}
                         </div>
                     </PdfViewer>
                 )}

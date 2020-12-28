@@ -22,21 +22,23 @@ export type Position = {
     pageOffset: number
 };
 
-export type TextHighlightTip = {
+export type TextSelectionType = {
     position: Position;
     text: string;
 };
 
-export type AreaHighlightTip = {
+export type AreaSelectionType = {
     position: Position;
     image: string;
 }
 
+export type SelectionType = TextSelectionType | AreaSelectionType;
+
 interface PdfViewerProps {
     pdfDocument: PDFDocumentProxy,
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
-    onTextSelection?: (highlightTip?: TextHighlightTip) => void;
-    onAreaSelection?: (highlightTip?: AreaHighlightTip) => void;
+    onTextSelection?: (highlightTip?: TextSelectionType) => void;
+    onAreaSelection?: (highlightTip?: AreaSelectionType) => void;
 }
 
 interface PdfViewerState {
