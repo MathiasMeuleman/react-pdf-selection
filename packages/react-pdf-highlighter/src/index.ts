@@ -1,5 +1,6 @@
+import {AreaSelection} from "./components/AreaSelection";
 import {PdfLoader} from "./components/PdfLoader";
-import {PdfViewer, HighlightTip, Position} from "./components/PdfViewer";
+import {PdfViewer, AreaHighlightTip, TextHighlightTip, Position} from "./components/PdfViewer";
 import {
     BoundingRect,
     EventBus,
@@ -16,6 +17,7 @@ import {
 } from "./types";
 
 export {
+    AreaSelection,
     PdfLoader,
     PdfViewer,
     BoundingRect,
@@ -27,7 +29,8 @@ export {
     ViewportHighlight,
     Content,
     Highlight,
-    HighlightTip,
+    AreaHighlightTip,
+    TextHighlightTip,
     HighlightComment,
     HighlightContent,
     HighlightId,
