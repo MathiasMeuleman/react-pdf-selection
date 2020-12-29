@@ -3,8 +3,8 @@
   "name": "react-pdf-highlighter-monorepo",
   "scripts": {
     "start": "concurrently --kill-others 'npm run \"start:examples\"' 'npm run \"start:react-pdf-highlighter\"'",
-    "format": "prettier --write packages/**/*.ts",
-    "format:check": "prettier --check packages/**/*.ts"
+    "format": "prettier --write packages/**/*.{ts,tsx}",
+    "format:check": "prettier --check packages/**/*.{ts,tsx}"
   },
   "devDependencies": {
     "concurrently": "^5.0.2",
