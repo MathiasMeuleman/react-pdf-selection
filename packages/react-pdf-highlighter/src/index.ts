@@ -1,4 +1,4 @@
-import {AreaSelection} from "./components/AreaSelection";
+import {NewAreaSelection} from "./components/NewAreaSelection";
 import {PdfLoader} from "./components/PdfLoader";
 import {PdfViewer, AreaSelectionType, TextSelectionType, SelectionType, Position} from "./components/PdfViewer";
 import {SelectionTooltip} from "./components/SelectionTooltip";
@@ -18,7 +18,7 @@ import {
 } from "./types";
 
 export {
-    AreaSelection,
+    NewAreaSelection,
     SelectionTooltip,
     PdfLoader,
     PdfViewer,

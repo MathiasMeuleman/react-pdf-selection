@@ -1,15 +1,15 @@
 import React from "react";
-import {Position} from "./PdfViewer";
+import {AreaSelectionType} from "./PdfViewer";
 
-export const AreaSelection = ({position}: {position: Position}) => (
+export const AreaSelection = ({areaSelection}: {areaSelection: AreaSelectionType}) => (
     <div
         style={{
             position: "absolute",
             border: "1px dashed #333",
             background: "rgba(252, 232, 151, 1)",
             mixBlendMode: "multiply",
-            ...position.boundingRect,
-            top: position.pageOffset + position.boundingRect.top,
+            ...areaSelection.position.boundingRect,
+            top: areaSelection.position.pageOffset + areaSelection.position.boundingRect.top,
         }}
     />
 );
