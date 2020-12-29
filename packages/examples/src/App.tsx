@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import {SelectionType, PdfLoader, PdfViewer, SelectionTooltip} from "react-pdf-annotator";
+import {pdfs} from "./example-pdfs";
 
-function App() {
-    const urls = ["https://arxiv.org/pdf/1708.08021.pdf", "https://arxiv.org/pdf/1604.02480.pdf"];
-    const [urlIdx, setUrlIdx] = useState(0);
+const App = () => {
+    const [pdfIdx, setPdfIdx] = useState(0);
     const [selection, setSelection] = useState<SelectionType>();
-    const toggleUrl = () => setUrlIdx(urlIdx > 0 ? 0 : 1);
+    const toggleUrl = () => setPdfIdx(pdfIdx > 0 ? 0 : 1);
 
     const setAndLogSelection = (highlightTip?: SelectionType) => {
         console.log(highlightTip);
@@ -21,10 +21,11 @@ function App() {
                 textAlign: "center",
             }}
         >
-            <PdfLoader url={urls[urlIdx]} beforeLoad={<h1>Loading...</h1>}>
+            <PdfLoader url={pdfs[pdfIdx].url} beforeLoad={<h1>Loading...</h1>}>
                 {(pdfDocument) => (
                     <PdfViewer
                         pdfDocument={pdfDocument}
+                        selections={pdfs[pdfIdx].selections}
                         enableAreaSelection={event => event.altKey}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
@@ -45,6 +46,6 @@ function App() {
             </div>
         </div>
     );
-}
+};
 
 export default App;
