@@ -1,6 +1,6 @@
-import React, {useState} from "react";
-import {SelectionType, PdfLoader, PdfViewer, SelectionTooltip} from "react-pdf-annotator";
-import {pdfs} from "./example-pdfs";
+import React, { useState } from "react";
+import { SelectionType, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-annotator";
+import { pdfs } from "./example-pdfs";
 
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
@@ -26,7 +26,7 @@ const App = () => {
                     <PdfViewer
                         pdfDocument={pdfDocument}
                         selections={pdfs[pdfIdx].selections}
-                        enableAreaSelection={event => event.altKey}
+                        enableAreaSelection={(event) => event.altKey}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
                     >
@@ -36,12 +36,14 @@ const App = () => {
                     </PdfViewer>
                 )}
             </PdfLoader>
-            <div style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                zIndex: 99,
-            }}>
+            <div
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    zIndex: 99,
+                }}
+            >
                 <button onClick={() => toggleUrl()}>Switch document</button>
             </div>
         </div>

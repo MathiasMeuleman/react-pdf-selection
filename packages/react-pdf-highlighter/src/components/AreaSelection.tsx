@@ -1,7 +1,7 @@
 import React from "react";
-import {AreaSelectionType} from "./PdfViewer";
+import { AreaSelectionType } from "./PdfViewer";
 
-export const AreaSelection = ({areaSelection}: {areaSelection: AreaSelectionType}) => (
+export const AreaSelection = ({ areaSelection }: { areaSelection: AreaSelectionType }) => (
     <div
         style={{
             position: "absolute",

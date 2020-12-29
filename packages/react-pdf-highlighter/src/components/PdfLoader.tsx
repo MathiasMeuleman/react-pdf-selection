@@ -1,24 +1,23 @@
-import {getDocument, GlobalWorkerOptions, PDFDocumentProxy} from "pdfjs-dist";
-import React, {Component, ReactElement} from "react";
+import { getDocument, GlobalWorkerOptions, PDFDocumentProxy } from "pdfjs-dist";
+import React, { Component, ReactElement } from "react";
 
 // Set the PDF worker
 GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
 
 type PdfLoaderProps = {
-    url: string,
-    beforeLoad: ReactElement,
-    errorMessage?: ReactElement,
-    children: (pdfDocument: PDFDocumentProxy) => ReactElement,
-    onError?: (error: Error) => void,
+    url: string;
+    beforeLoad: ReactElement;
+    errorMessage?: ReactElement;
+    children: (pdfDocument: PDFDocumentProxy) => ReactElement;
+    onError?: (error: Error) => void;
 };
 
 type PdfLoaderState = {
-    pdfDocument?: PDFDocumentProxy,
-    error?: Error,
+    pdfDocument?: PDFDocumentProxy;
+    error?: Error;
 };
 
 export class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
-
     constructor(props: PdfLoaderProps) {
         super(props);
         this.state = {};
@@ -59,8 +58,8 @@ export class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
         try {
             this.discardDocument(pdfDocument);
             if (!url) return;
-            getDocument(url).promise.then(pdfDocument => {
-                this.setState({pdfDocument});
+            getDocument(url).promise.then((pdfDocument) => {
+                this.setState({ pdfDocument });
             });
         } catch (e) {
             this.componentDidCatch(e);
@@ -71,11 +70,7 @@ export class PdfLoader extends Component<PdfLoaderProps, PdfLoaderState> {
         const { children, beforeLoad } = this.props;
         const { pdfDocument, error } = this.state;
 
-        return error
-            ? this.renderError()
-            : !pdfDocument || !children
-                ? beforeLoad
-                : children(pdfDocument);
+        return error ? this.renderError() : !pdfDocument || !children ? beforeLoad : children(pdfDocument);
     }
 
     renderError() {

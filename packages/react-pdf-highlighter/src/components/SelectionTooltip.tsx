@@ -1,7 +1,7 @@
 import React from "react";
-import {SelectionType} from "./PdfViewer";
+import { SelectionType } from "./PdfViewer";
 
-export const SelectionTooltip = ({selection}: {selection: SelectionType}) => (
+export const SelectionTooltip = ({ selection }: { selection: SelectionType }) => (
     <div
         className="pdfViewer__highlight-tip"
         style={{
@@ -19,5 +19,7 @@ export const SelectionTooltip = ({selection}: {selection: SelectionType}) => (
             padding: "5px 10px",
             borderRadius: "3px",
         }}
-    >Add highlight</div>
+    >
+        Add highlight
+    </div>
 );

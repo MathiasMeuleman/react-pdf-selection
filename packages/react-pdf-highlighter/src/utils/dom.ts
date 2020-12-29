@@ -1,8 +1,6 @@
-export const getDocument = (elm: any): Document =>
-    (elm || {}).ownerDocument || document;
+export const getDocument = (elm: any): Document => (elm || {}).ownerDocument || document;
 
-export const getWindow = (elm: any): typeof window =>
-    (getDocument(elm) || {}).defaultView || window;
+export const getWindow = (elm: any): typeof window => (getDocument(elm) || {}).defaultView || window;
 
 export const getPageFromElement = (target: HTMLElement) => {
     const node = target.closest<HTMLElement>(".page");
@@ -22,10 +20,7 @@ export const getPageFromRange = (range: Range) => {
     return getPageFromElement(parentElement);
 };
 
-export const findOrCreateContainerLayer = (
-    container: HTMLElement,
-    className: string
-) => {
+export const findOrCreateContainerLayer = (container: HTMLElement, className: string) => {
     const doc = getDocument(container);
     let layer = container.querySelector(`.${className}`);
 

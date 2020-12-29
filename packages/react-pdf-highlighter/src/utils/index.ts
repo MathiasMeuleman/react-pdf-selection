@@ -1,13 +1,7 @@
-import {scaledToViewport, viewportToScaled} from "./coordinates";
-import {
-    getDocument,
-    findOrCreateContainerLayer,
-    getPageFromElement,
-    getPageFromRange,
-    getWindow,
-} from "./dom";
-import {getAreaAsPNG} from "./image";
-import {getBoundingRect, getClientRects} from "./rects";
+import { scaledToViewport, viewportToScaled } from "./coordinates";
+import { getDocument, findOrCreateContainerLayer, getPageFromElement, getPageFromRange, getWindow } from "./dom";
+import { getAreaAsPNG } from "./image";
+import { getBoundingRect, getClientRects } from "./rects";
 
 export {
     getBoundingRect,

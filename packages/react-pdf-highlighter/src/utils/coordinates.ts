@@ -4,13 +4,10 @@
 // for clarity reasons I decided not to store actual (0, 1) coordinates, but
 // provide width and height, so user can compute ratio himself if needed
 
-import {PDFPageViewport} from "pdfjs-dist";
-import {BoundingRect, Scaled} from "../types";
+import { PDFPageViewport } from "pdfjs-dist";
+import { BoundingRect, Scaled } from "../types";
 
-export const viewportToScaled = (
-    rect: BoundingRect,
-    { width, height }: {width: number, height: number}
-): Scaled => {
+export const viewportToScaled = (rect: BoundingRect, { width, height }: { width: number; height: number }): Scaled => {
     return {
         x1: rect.left,
         y1: rect.top,
@@ -19,31 +16,26 @@ export const viewportToScaled = (
         y2: rect.top + rect.height,
 
         width,
-        height
+        height,
     };
 };
 
 const pdfToViewport = (pdf: Scaled, viewport: PDFPageViewport): BoundingRect => {
-    const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([
-        pdf.x1,
-        pdf.y1,
-        pdf.x2,
-        pdf.y2
-    ]);
+    const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([pdf.x1, pdf.y1, pdf.x2, pdf.y2]);
 
     return {
         left: x1,
         top: y1,
 
         width: x2 - x1,
-        height: y1 - y2
+        height: y1 - y2,
     };
 };
 
 export const scaledToViewport = (
     scaled: Scaled,
     viewport: PDFPageViewport,
-    usePdfCoordinates: boolean = false
+    usePdfCoordinates: boolean = false,
 ): BoundingRect => {
     const { width, height } = viewport;
 
@@ -65,6 +57,6 @@ export const scaledToViewport = (
         left: x1,
         top: y1,
         width: x2 - x1,
-        height: y2 - y1
+        height: y2 - y1,
     };
 };
