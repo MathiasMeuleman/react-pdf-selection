@@ -12,7 +12,8 @@
     "start": "npm run watch",
     "format": "prettier --write src/**/*.{ts,tsx}",
     "format:check": "prettier --check src/**/*.{ts,tsx}",
-    "version": "npm run format && "
+    "postpublish": "git push origin --all; git push origin --tags",
+    "postversion": "npm publish"
   },
   "dependencies": {
     "lodash.debounce": "^4.0.8",
