@@ -1,15 +1,18 @@
 {
-  "name": "react-pdf-annotator",
-  "version": "3.3.0",
-  "description": "Set of React components for PDF annotation",
+  "name": "react-pdf-selection",
+  "version": "0.1.1",
+  "description": "Library of React components needed for text and area selections in PDF documents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc && npm run copyfiles",
-    "copyfiles": "copyfiles --up 1 ./src/style/* ./dist && copyfiles ./package.json ./dist",
+    "copyfiles": "copyfiles --up 1 ./src/style/* ./dist && copyfiles ./package.json ./dist && copyfiles --up 2 ./../../{CHANGELOG.md,LICENSE,README.md} ./dist",
     "dev": "tsc --watch && npm run copyfiles",
     "clean": "rm -rf dist/",
-    "start": "npm run watch"
+    "start": "npm run watch",
+    "format": "prettier --write src/**/*.{ts,tsx}",
+    "format:check": "prettier --check src/**/*.{ts,tsx}",
+    "version": "npm run format && "
   },
   "dependencies": {
     "lodash.debounce": "^4.0.8",
@@ -35,8 +38,10 @@
   "license": "MIT",
   "keywords": [
     "pdf",
+    "selection",
     "highlight",
     "annotator",
+    "react",
     "react-component"
   ],
   "files": [
@@ -44,10 +49,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MathiasMeuleman/react-pdf-annotator.git"
+    "url": "git+https://github.com/MathiasMeuleman/react-pdf-selection.git"
   },
   "bugs": {
-    "url": "https://github.com/MathiasMeuleman/react-pdf-annotator/issues"
+    "url": "https://github.com/MathiasMeuleman/react-pdf-selection/issues"
   },
-  "homepage": "https://github.com/MathiasMeuleman/react-pdf-annotator#readme"
+  "homepage": "https://github.com/MathiasMeuleman/react-pdf-selection#readme"
 }
