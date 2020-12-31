@@ -1,118 +1,93 @@
-☕️ [Buy me a coffee](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SC4D2NS8G2JJ8&source=url)
+# React PDF Selection
 
-![Node CI](https://github.com/agentcooper/react-pdf-highlighter/workflows/Node%20CI/badge.svg)
+This library provides text and rectangular area selections for PDF documents. It is built on top of PDF.js by Mozilla.
+Selection position data is independent of the current viewport, to make it suitable for resizing documents and permanent
+storage.
 
-## react-pdf-highlighter
+Installation is simply done with `npm` or `yarn`:
 
-`react-pdf-highlighter` is a [React](https://reactjs.org/) library that provides annotation experience for PDF documents on web. It is built on top of PDF.js by Mozilla. Text and rectangular highlights are supported. Highlight
-data format is independent of the viewport, making it suitable for saving on the
-server.
+```
+npm install react-pdf-selection
+// or 
+yarn install react-pdf-selection
+```
 
-### Example (Create React App)
+After this, the `PdfViewer` component can be used to create a PDF viewer on which selections can be made.
+There are options to provide selections to the viewer, components to overwrite how these selections are rendered
+and options to listen for new selections made by users. Default components, as well as a PdfLoader are provided in this
+ package as well and can optionally be used. See the example and API reference for all the details.
 
-For online example check https://agentcooper.github.io/react-pdf-highlighter/.
+### Examples
 
-To run the example app locally:
+An online example can be found at https://MathiasMeuleman.github.io/react-pdf-annotator/packages/examples
+
+To run the example locally however, you can simply:
 
 ```
 npm install
 npm start
 ```
 
-While docs are in progress, feel free to check the source annotated with Flow
-type signatures.
+### API Reference
 
-### Installation
+#### `PdfLoader` props
 
-`npm install react-pdf-highlighter`
+Property | Type | Required | Notes
+:---|:---|:---|:---
+url | `string` | yes | If using an external source, make sure the CORS headers are set properly (see [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS))
+beforeLoad | `ReactElement` | yes |
+errorMessage | `ReactElement` | no |
+children | `(pdfDocument: PDFDocumentProxy) => void` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package
+onError | `(error: Error) => void` | no |
 
-See
-[`packages/example/src/App.js`](https://github.com/agentcooper/react-pdf-highlighter/blob/master/packages/example/src/App.js)
-for React component API example.
+#### `PdfViewer` props
+
+Property | Type | Required | Notes
+:---|:---|:---|:---
+pdfDocument | `PDFDocumentProxy` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package.
+selections | `SelectionType[]` | no | See the `SelectionType` definitions below
+enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
+onTextSelection | `(selection?: TextSelectionType) => void` | no | Is called with the `TextSelectionType` when a new text selection is made, or with `undefined` when the text selection is cancelled/removed.
+onAreaSelection | `(selection?: AreaSelectionType) => void` | no | Is called with the `AreaSelectionType` when a new area selection is made, or with `undefined` when the area selection is cancelled/removed.
+
+#### `SelectionType`
+
+Property | Type | Required | Notes
+:---|:---|:---|:---
+position | `Position` | yes | The position of the selection on the document.
+text | `string` | no | The text contained in the selection. This property is required when the selection is a `TextSelectionType`, and is ignored when the selection is an `AreaSelectionType`.
+image | `string` | no | The Base64 encoded PNG image of an area selection. This property is required when the selection is an `AreaSelectionType`, and is ignored when the selection is a `TextSelectionType`.
+
+#### `Position`
+
+Property | Type | Required | Notes
+:---|:---|:---|:---
+boundingRect | `BoundingRect` | yes | The bounding rectangle of the entire selection.
+rects | `BoundingRect[]` | yes | The bounding rectangle of each of the selections rectangles. In case of an area selection, this is equal to `boundingRect`, in case of a text selection there is one `BoundingRect` for each line of selected text.
+pageNumber | number | yes | 1-based page number on which the selection is made.
+pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
+
+#### `BoundingRect`
+
+Property | Type | Required
+:---|:---|:---
+left | number | yes
+top | number | yes
+width | number | yes
+height | number | yes
 
 ### Prior art
 
-[`react-pdf`](https://github.com/wojtekmaj/react-pdf) and
-[`react-pdfjs`](https://github.com/erikras/react-pdfjs) only provide React
-wrappers for PDF.js and do not have built-in annotation functionality.
-
-[`pdfjs-annotate`](https://github.com/instructure/pdf-annotate.js/) does not
+ - [`react-pdf`](https://github.com/wojtekmaj/react-pdf) and [`react-pdfjs`](https://github.com/erikras/react-pdfjs) provide React
+wrappers for PDF.js.
+ - [`pdfjs-annotate`](https://github.com/instructure/pdf-annotate.js/) does not
 provide text highlights out of the box.
-
-PDF.js provides only viewer:
-
-> [PDF.js is mainly written for reading PDF files, not editing them. Because of that we don't yet support adding any kind of annotations. We do however support rendering a number of annotation types for viewing.](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#is-it-possible-to-add-annotations-to-a-pdf)
-
-See also:
-
-- https://github.com/mozilla/pdf.js
-- https://github.com/wojtekmaj/react-pdf
-- https://github.com/erikras/react-pdfjs
-- https://github.com/instructure/pdf-annotate.js/
-- https://blogs.dropbox.com/tech/2016/11/annotations-on-document-previews/
-
-### FAQ
-
-##### Can I get a new PDF with the highlights embedded into the document?
-
-No, but [pdf-annotation-service](https://github.com/agentcooper/pdf-annotation-service) might be helpful for you.
-
-##### Wasn't this named react-pdf-annotator at some point?
-
-Yes, but people from https://www.pdfannotator.com/ asked me to rename, since [they have a trademark for PDF Annotator](https://www.pdfannotator.com/en/help/infodisclaimer).
-
-##### I'm trying the demo with my PDF and it is not loading!
-
-Please check the [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) on your url. It is required for the cross-domain request.
-
-### Compatibility
-
-Works in Google Chrome, Safari 10+, Firefox 52+. Not tested in Internet
-Explorer.
+ - [`react-pdf-highlighter`](https://github.com/agentcooper/react-pdf-highlighter) provides highlights, but however misses
+type definitions and does not provide the freedom for many applications.
 
 ### Contributing
 
-To publish a new version:
+The library can be compiled by running `npm run build` (alternatively use `npm run dev` to enable TypeScript `--watch` option).
+Use `npm link` to link the `dist` folder to your `node_modules`, so changes are automatically updated.
 
-```
-npx lerna version
-
-cd ./packages/react-pdf-highlighter
-npm publish
-```
-
-# PDF.js worker thread
-
-The default worker is an inline "fake" worker. To improve performance, either add the worker-loader (preferred) to your webpack config or use the inline loader syntax.
-
-#### Webpack config example snippet
-
-> Use this if have your own config
-
-```js
-{
-  ...
-  module: {
-    rules: [
-      {
-        test: /\.worker\.js$/,
-        use: 'worker-loader',
-      },
-      ...
-    ]
-  }
-}
-```
-
-#### Inline Webpack-loader syntax
-
-> Use in Create React App projects
-
-```js
-import PDFWorker from "worker-loader!pdfjs-dist/lib/pdf.worker";
-
-import {setPdfWorker} from 'react-pdf-highlighter';
-
-setPdfWorker(PDFWorker);
-...
-```
+Feel free to submit a pull request!

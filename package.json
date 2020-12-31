@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "react-pdf-highlighter-monorepo",
+  "name": "react-pdf-selection-monorepo",
   "scripts": {
     "start": "concurrently --kill-others 'npm run \"start:examples\"' 'npm run \"start:react-pdf-highlighter\"'",
     "format": "prettier --write packages/**/*.{ts,tsx}",
