@@ -60,7 +60,6 @@ interface PdfViewerState {
     areaSelection?: {
         originTarget?: HTMLElement;
         start?: Coords;
-        end?: Coords;
         position?: Position;
         locked?: boolean;
     };
@@ -150,41 +149,40 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!start) return;
 
         this.setState({
-            areaSelection: { originTarget: event.target as HTMLElement, start, end: undefined, locked: false },
+            areaSelection: { originTarget: event.target as HTMLElement, start, locked: false },
         });
+    };
+
+    getAreaSelectionPosition = (event: MouseEvent) => {
+        const { areaSelection } = this.state;
+        if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked) return;
+        const end = this.containerCoords(event.pageX, event.pageY);
+        if (!end) return;
+        const page = getPageFromElement(areaSelection.originTarget);
+        if (!page) return;
+
+        const pageOffset = this.getPageOffset(page.number);
+        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
+        const position: Position = { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset };
+        return position;
     };
 
     onAreaSelectChange = (event: MouseEvent) => {
         const { areaSelection } = this.state;
-        if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked) return;
-        const end = this.containerCoords(event.pageX, event.pageY);
-        if (!end) return;
-        const page = getPageFromElement(areaSelection.originTarget);
-        if (!page) return;
-
-        const pageOffset = this.getPageOffset(page.number);
-        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
-        const position: Position = { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset };
-        this.setState({ areaSelection: { ...areaSelection, end, position } });
+        const position = this.getAreaSelectionPosition(event);
+        if (!position) return;
+        this.setState({ areaSelection: { ...areaSelection, position } });
     };
 
     onAreaSelectEnd = (event: MouseEvent) => {
-        if (!this.state.viewer) return;
         const { areaSelection } = this.state;
-        if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked) return;
-        const end = this.containerCoords(event.pageX, event.pageY);
-        if (!end) return;
-        if (!event.target) return;
-        const page = getPageFromElement(areaSelection.originTarget);
-        if (!page) return;
-
-        const pageOffset = this.getPageOffset(page.number);
-        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
-        const position: Position = { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset };
-        const image = getAreaAsPNG(this.state.viewer.getPageView(page.number - 1).canvas, boundingRect);
+        if (!this.state.viewer) return;
+        const position = this.getAreaSelectionPosition(event);
+        if (!position) return;
+        const image = getAreaAsPNG(this.state.viewer.getPageView(position.pageNumber - 1).canvas, position.boundingRect);
         this.props.onAreaSelection?.({ position, image });
         this.setState({
-            areaSelection: { ...areaSelection, end, position, locked: true },
+            areaSelection: { ...areaSelection, position, locked: true },
             textSelectionEnabled: true,
         });
     };
