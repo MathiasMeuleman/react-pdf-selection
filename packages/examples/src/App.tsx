@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SelectionType, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-annotator";
+import { SelectionType, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-selection";
 import { pdfs } from "./example-pdfs";
 
 const App = () => {

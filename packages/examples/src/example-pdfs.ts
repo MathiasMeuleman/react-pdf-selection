@@ -1,4 +1,4 @@
-import { SelectionType } from "react-pdf-annotator";
+import { SelectionType } from "react-pdf-selection";
 
 export const pdfs: { url: string; selections: SelectionType[] }[] = [
     {

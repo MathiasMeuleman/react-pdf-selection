@@ -19,9 +19,9 @@ and options to listen for new selections made by users. Default components, as w
 
 ### Examples
 
-An online example can be found at https://MathiasMeuleman.github.io/react-pdf-annotator/packages/examples
+An online example can be found at https://MathiasMeuleman.github.io/react-pdf-selection
 
-To run the example locally however, you can simply:
+To run the example locally however, from the `packages/examples` folder you can run:
 
 ```
 npm install
