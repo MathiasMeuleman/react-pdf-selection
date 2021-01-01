@@ -6,16 +6,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc && npm run copyfiles",
-    "copyfiles": "copyfiles --up 1 ./src/style/* ./dist && copyfiles --up 2 ./../../{CHANGELOG.md,LICENSE,README.md} ./dist && npm run copypackage",
-    "copypackage": "copyfiles ./package.json ./dist && replace-in-file ./dist/package.json --configFile=replace-config.js",
+    "copyfiles": "copyfiles --up 1 ./src/style/* ./dist && copyfiles --up 2 ./../../{CHANGELOG.md,LICENSE,README.md} ./dist",
     "dev": "tsc --watch && npm run copyfiles",
     "clean": "rm -rf dist/",
     "start": "npm run watch",
     "format": "prettier --write src/**/*.{ts,tsx}",
     "format:check": "prettier --check src/**/*.{ts,tsx}",
     "postpublish": "git push origin --all; git push origin --tags",
-    "postversion": "npm publish",
-    "preversion": "npm run build"
+    "version:publish": "node buildfile.js"
   },
   "dependencies": {
     "pdfjs-dist": "2.6.347"
@@ -44,9 +42,6 @@
     "annotator",
     "react",
     "react-component"
-  ],
-  "files": [
-    "dist/**/*"
   ],
   "repository": {
     "type": "git",
