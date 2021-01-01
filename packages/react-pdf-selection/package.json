@@ -17,10 +17,7 @@
     "preversion": "npm run build"
   },
   "dependencies": {
-    "lodash.debounce": "^4.0.8",
-    "pdfjs-dist": "2.6.347",
-    "react-pointable": "^1.1.1",
-    "react-rnd": "^10.1.10"
+    "pdfjs-dist": "2.6.347"
   },
   "peerDependencies": {
     "react": ">=16.8.0 || >=17.0.0",
@@ -47,7 +44,7 @@
     "react-component"
   ],
   "files": [
-    "dist"
+    "dist/**/*"
   ],
   "repository": {
     "type": "git",
