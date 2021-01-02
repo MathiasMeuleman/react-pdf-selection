@@ -19,8 +19,8 @@
     "pdfjs-dist": "2.6.347"
   },
   "peerDependencies": {
-    "react": ">=16.8.0 || >=17.0.0",
-    "react-dom": ">=16.8.0 || >=17.0.0"
+    "react": ">=16.4.0 || >=17.0.0",
+    "react-dom": ">=16.4.0 || >=17.0.0"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.6",
