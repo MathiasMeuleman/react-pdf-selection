@@ -7,21 +7,11 @@ export type BoundingRect = {
     height: number;
 };
 
-export type Scaled = {
-    x1: number;
-    y1: number;
-
-    x2: number;
-    y2: number;
-
-    width: number;
-    height: number;
-};
-
 export type Position = {
     boundingRect: BoundingRect;
     rects: Array<BoundingRect>;
     pageNumber: number;
+    pageOffset: number;
 };
 
 export type EventBus = {
@@ -39,7 +29,7 @@ export type Viewer = {
         viewport: PDFPageViewport;
         div: HTMLDivElement;
         canvas: HTMLCanvasElement;
-    };
+    } | undefined;
     setDocument: (document: PDFDocumentProxy) => Promise<void>;
     scrollPageIntoView: (options: { pageNumber: number; destArray: Array<any> }) => void;
     currentScaleValue: string;

@@ -1,8 +1,17 @@
-import { PDFDocumentProxy } from "pdfjs-dist";
+import {PDFDocumentProxy} from "pdfjs-dist";
 // @ts-ignore-next-line
-import { EventBus, PDFLinkService, PDFViewer } from "pdfjs-dist/web/pdf_viewer";
-import React, { Component } from "react";
-import { BoundingRect, EventBus as EventBusType, LinkService as LinkServiceType, Viewer as ViewerType } from "../types";
+import {EventBus, PDFLinkService, PDFViewer} from "pdfjs-dist/web/pdf_viewer";
+
+import "pdfjs-dist/web/pdf_viewer.css";
+import React, {Component} from "react";
+import "../style/pdf_viewer.css";
+import {
+    BoundingRect,
+    EventBus as EventBusType,
+    LinkService as LinkServiceType,
+    Position,
+    Viewer as ViewerType,
+} from "../types";
 import {
     getAreaAsPNG,
     getBoundingRect,
@@ -10,24 +19,16 @@ import {
     getPageFromElement,
     getPageFromRange,
     getWindow,
+    normalizeBoundingRect,
+    viewportPosition,
 } from "../utils";
-import { AreaSelection } from "./AreaSelection";
-import { NewAreaSelection } from "./NewAreaSelection";
-import { TextSelection } from "./TextSelection";
-
-import "pdfjs-dist/web/pdf_viewer.css";
-import "../style/pdf_viewer.css";
+import {AreaSelection} from "./AreaSelection";
+import {NewAreaSelection} from "./NewAreaSelection";
+import {TextSelection} from "./TextSelection";
 
 export type Coords = {
     x: number;
     y: number;
-};
-
-export type Position = {
-    boundingRect: BoundingRect;
-    rects: Array<BoundingRect>;
-    pageNumber: number;
-    pageOffset: number;
 };
 
 export type TextSelectionType = {
@@ -162,7 +163,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!page) return;
 
         const pageOffset = this.getPageOffset(page.number);
-        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
+        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight };
+        const boundingRect = normalizeBoundingRect(this.getBoundingRect(areaSelection.start, end, pageOffset), viewport);
         const position: Position = { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset };
         return position;
     };
@@ -179,7 +181,9 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!this.state.viewer) return;
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
-        const image = getAreaAsPNG(this.state.viewer.getPageView(position.pageNumber - 1).canvas, position.boundingRect);
+        const pageView = this.state.viewer.getPageView(position.pageNumber - 1);
+        if (!pageView) return;
+        const image = getAreaAsPNG(pageView.canvas, position.boundingRect);
         this.props.onAreaSelection?.({ position, image });
         this.setState({
             areaSelection: { ...areaSelection, position, locked: true },
@@ -256,41 +260,59 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         (window as any).PdfViewer = this;
     };
 
-    render = () => (
-        <div
-            ref={this.pdfContainerRefCallback}
-            className="pdfViewerContainer"
-            style={{
-                height: "100%",
-                overflow: "auto",
-                position: "absolute",
-                width: "100%",
-                ...(this.state.textSelectionEnabled
-                    ? {}
-                    : {
-                        userSelect: "none",
-                        pointerEvents: "none",
-                    }),
-            }}
-            onContextMenu={(e) => e.preventDefault()}
-            onPointerDown={this.onMouseDown}
-        >
-            <div className="pdfViewer" />
-            <div className="pdfViewer__area-selection">
-                {this.state.areaSelection?.position && (
-                    <NewAreaSelection position={this.state.areaSelection.position} />
-                )}
+    getPageViewport = (pageNumber: number) => {
+        if (!this.state.viewer) return;
+        const pageView = this.state.viewer.getPageView(pageNumber);
+        return pageView?.viewport;
+    };
+
+    renderSelection = (selection: SelectionType, i: number) => {
+        const pageViewport = this.getPageViewport(selection.position.pageNumber);
+        if (!pageViewport) return null;
+        const scaledSelection = {...selection, position: viewportPosition(selection.position, pageViewport)};
+        return isAreaSelection(scaledSelection) ? (
+            <AreaSelection key={i} areaSelection={scaledSelection} />
+        ) : (
+            <TextSelection key={i} textSelection={scaledSelection} />
+        );
+    };
+
+    render = () => {
+        const newAreaViewport = this.state.areaSelection?.position
+            ? this.getPageViewport(this.state.areaSelection.position.pageNumber)
+            : undefined;
+        return (
+            <div
+                ref={this.pdfContainerRefCallback}
+                className="pdfViewerContainer"
+                style={{
+                    height: "100%",
+                    overflow: "auto",
+                    position: "absolute",
+                    width: "100%",
+                    ...(this.state.textSelectionEnabled
+                        ? {}
+                        : {
+                            userSelect: "none",
+                            pointerEvents: "none",
+                        }),
+                }}
+                onContextMenu={(e) => e.preventDefault()}
+                onPointerDown={this.onMouseDown}
+            >
+                <div className="pdfViewer" />
+                <div className="pdfViewer__area-selection">
+                    {this.state.areaSelection?.position && newAreaViewport && (
+                        <NewAreaSelection position={viewportPosition(this.state.areaSelection.position, newAreaViewport)} />
+                    )}
+                </div>
+                <div>
+                    {this.props.selections?.map((selection, i) => {
+                        return this.renderSelection(selection, i);
+                    })}
+                </div>
+                {this.props.children}
             </div>
-            <div>
-                {this.props.selections?.map((selection, i) => {
-                    return isAreaSelection(selection) ? (
-                        <AreaSelection key={i} areaSelection={selection} />
-                    ) : (
-                        <TextSelection key={i} textSelection={selection} />
-                    );
-                })}
-            </div>
-            {this.props.children}
-        </div>
-    );
+        );
+    };
 }
