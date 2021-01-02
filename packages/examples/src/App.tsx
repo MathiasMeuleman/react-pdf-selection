@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { SelectionType, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-selection";
+import { NormalizedSelection, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-selection";
 import { pdfs } from "./example-pdfs";
 
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
-    const [selection, setSelection] = useState<SelectionType>();
+    const [selection, setSelection] = useState<NormalizedSelection>();
     const toggleUrl = () => setPdfIdx(pdfIdx > 0 ? 0 : 1);
 
-    const setAndLogSelection = (highlightTip?: SelectionType) => {
+    const setAndLogSelection = (highlightTip?: NormalizedSelection) => {
         console.log(highlightTip);
         setSelection(highlightTip);
     };
