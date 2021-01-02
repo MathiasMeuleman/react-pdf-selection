@@ -1,4 +1,4 @@
-import { normalizeBoundingRect, viewportBoundingRect, viewportPosition } from "./coordinates";
+import { normalizeBoundingRect, viewportBoundingRect, viewportPosition, positionToViewport } from "./coordinates";
 import { getDocument, findOrCreateContainerLayer, getPageFromElement, getPageFromRange, getWindow } from "./dom";
 import { getAreaAsPNG } from "./image";
 import { getBoundingRect, getClientRects } from "./rects";
@@ -15,4 +15,5 @@ export {
     normalizeBoundingRect,
     viewportBoundingRect,
     viewportPosition,
+    positionToViewport,
 };

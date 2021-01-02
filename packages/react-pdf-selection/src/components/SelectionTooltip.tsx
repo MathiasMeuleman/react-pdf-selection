@@ -1,11 +1,11 @@
 import React from "react";
-import { SelectionType } from "./PdfViewer";
+import { NormalizedSelection } from "./PdfViewer";
 
-export const SelectionTooltip = ({ selection }: { selection: SelectionType }) => (
+export const SelectionTooltip = ({ selection }: { selection: NormalizedSelection }) => (
     <div
         className="pdfViewer__highlight-tip"
         style={{
-            top: selection.position.pageOffset + selection.position.boundingRect.top - 40,
+            top: selection.position.pageOffset + selection.position.absolute.boundingRect.top - 40,
             position: "absolute",
             zIndex: 99,
             width: "120px",

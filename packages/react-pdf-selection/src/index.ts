@@ -1,8 +1,16 @@
 import { NewAreaSelection } from "./components/NewAreaSelection";
 import { PdfLoader } from "./components/PdfLoader";
-import { PdfViewer, AreaSelectionType, TextSelectionType, SelectionType } from "./components/PdfViewer";
+import {
+    AreaSelectionType,
+    NormalizedAreaSelection,
+    NormalizedSelection,
+    NormalizedTextSelection,
+    PdfViewer,
+    SelectionType,
+    TextSelectionType,
+} from "./components/PdfViewer";
 import { SelectionTooltip } from "./components/SelectionTooltip";
-import { BoundingRect, EventBus, LinkService, Position, Viewer } from "./types";
+import { BoundingRect, EventBus, LinkService, NormalizedPosition, Position, Viewer } from "./types";
 
 export {
     NewAreaSelection,
@@ -11,10 +19,14 @@ export {
     PdfViewer,
     BoundingRect,
     Position,
+    NormalizedPosition,
     Viewer,
     EventBus,
     LinkService,
     SelectionType,
     AreaSelectionType,
     TextSelectionType,
+    NormalizedSelection,
+    NormalizedAreaSelection,
+    NormalizedTextSelection,
 };

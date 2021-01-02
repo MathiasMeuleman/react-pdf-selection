@@ -7,9 +7,19 @@ export type BoundingRect = {
     height: number;
 };
 
-export type Position = {
+export type SelectionRects = {
     boundingRect: BoundingRect;
     rects: Array<BoundingRect>;
+};
+
+export type Position = {
+    pageNumber: number;
+    pageOffset: number;
+} & SelectionRects;
+
+export type NormalizedPosition = {
+    normalized: SelectionRects;
+    absolute: SelectionRects;
     pageNumber: number;
     pageOffset: number;
 };
@@ -24,12 +34,14 @@ export type Viewer = {
     viewer: HTMLDivElement;
     getPageView: (
         page: number,
-    ) => {
-        textLayer: { textLayerDiv: HTMLDivElement };
-        viewport: PDFPageViewport;
-        div: HTMLDivElement;
-        canvas: HTMLCanvasElement;
-    } | undefined;
+    ) =>
+        | {
+              textLayer: { textLayerDiv: HTMLDivElement };
+              viewport: PDFPageViewport;
+              div: HTMLDivElement;
+              canvas: HTMLCanvasElement;
+          }
+        | undefined;
     setDocument: (document: PDFDocumentProxy) => Promise<void>;
     scrollPageIntoView: (options: { pageNumber: number; destArray: Array<any> }) => void;
     currentScaleValue: string;

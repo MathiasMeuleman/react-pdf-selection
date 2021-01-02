@@ -1,5 +1,5 @@
 import React from "react";
-import {Position} from "../types";
+import { Position } from "../types";
 
 export const NewAreaSelection = ({ position }: { position: Position }) => (
     <div
