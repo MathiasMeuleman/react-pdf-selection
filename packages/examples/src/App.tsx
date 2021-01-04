@@ -13,38 +13,41 @@ const App = () => {
     };
 
     return (
-        <div
-            style={{
-                width: "100vw",
-                height: "100vh",
-                position: "relative",
-                textAlign: "center",
-            }}
-        >
-            <PdfLoader url={pdfs[pdfIdx].url} beforeLoad={<h1>Loading...</h1>}>
-                {(pdfDocument) => (
-                    <PdfViewer
-                        pdfDocument={pdfDocument}
-                        selections={pdfs[pdfIdx].selections}
-                        enableAreaSelection={(event) => event.altKey}
-                        onTextSelection={setAndLogSelection}
-                        onAreaSelection={setAndLogSelection}
+        <div>
+            <div style={{borderBottom: "1px solid black", height: "200px", width: "100%"}}>
+                Topbar
+            </div>
+            <div style={{display: "flex"}}>
+                <div style={{borderRight: "1px solid black", width: "33.3333%"}}>
+                    Sidebar
+                </div>
+                <div style={{width: "66.6666%"}}>
+                    <PdfLoader url={pdfs[pdfIdx].url} beforeLoad={<h1>Loading...</h1>}>
+                        {(pdfDocument) => (
+                            <PdfViewer
+                                pdfDocument={pdfDocument}
+                                selections={pdfs[pdfIdx].selections}
+                                enableAreaSelection={(event) => event.altKey}
+                                onTextSelection={setAndLogSelection}
+                                onAreaSelection={setAndLogSelection}
+                            >
+                                <div className="pdfViewer__highlight-tip-container">
+                                    {selection && <SelectionTooltip selection={selection} />}
+                                </div>
+                            </PdfViewer>
+                        )}
+                    </PdfLoader>
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            zIndex: 99,
+                        }}
                     >
-                        <div className="pdfViewer__highlight-tip-container">
-                            {selection && <SelectionTooltip selection={selection} />}
-                        </div>
-                    </PdfViewer>
-                )}
-            </PdfLoader>
-            <div
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    zIndex: 99,
-                }}
-            >
-                <button onClick={() => toggleUrl()}>Switch document</button>
+                        <button onClick={() => toggleUrl()}>Switch document</button>
+                    </div>
+                </div>
             </div>
         </div>
     );
