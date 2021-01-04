@@ -71,6 +71,7 @@ interface PdfViewerState {
     containerNode?: HTMLDivElement;
     viewer?: ViewerType;
     pageHeights: number[];
+    pageMargin: number;
     textSelectionEnabled: boolean;
     areaSelection?: {
         originTarget?: HTMLElement;
@@ -83,6 +84,7 @@ interface PdfViewerState {
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     state: PdfViewerState = {
         pageHeights: [],
+        pageMargin: 0,
         textSelectionEnabled: true,
     };
     eventBus: EventBusType = new EventBus();
@@ -95,7 +97,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     getPageOffset = (pageNumber: number) => {
-        return this.state.pageHeights.slice(0, pageNumber - 1).reduce((a, b) => a + b, 0);
+        const { pageHeights, pageMargin } = this.state;
+        return pageHeights.slice(0, pageNumber - 1).reduce((a, b) => a + b + pageMargin, 0);
     };
 
     containerCoords = (pageX: number, pageY: number) => {
@@ -117,14 +120,30 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         };
     }
 
+    rectsToLayout = (page: { node: HTMLElement; number: number }, rects: BoundingRect[]) => {
+        return rects.map((rect) => {
+            const style = getWindow(page.node).getComputedStyle(page.node);
+            const offsetLeft = parseInt(style.borderLeftWidth, 10) + parseInt(style.paddingLeft, 10);
+            const offsetTopPage = parseInt(style.borderTopWidth, 10) + parseInt(style.paddingTop, 10);
+            const pageOffset = this.getPageOffset(page.number);
+            const offsetTop = pageOffset > 0 ? pageOffset - this.state.pageMargin + offsetTopPage : offsetTopPage;
+            return {...rect, left: rect.left + offsetLeft, top: rect.top + offsetTop};
+        });
+    };
+
     resize = () => {
-        if (this.state.viewer) {
-            this.state.viewer.currentScaleValue = "page-width";
-            const pageHeights = Array.from(this.state.viewer.viewer.childNodes).map(
-                (page) => (page as HTMLElement).clientHeight,
-            );
-            this.setState({ pageHeights });
-        }
+        if (!this.state.viewer) return;
+        const page = this.state.viewer.viewer.firstElementChild;
+        if (!page) return;
+
+        this.state.viewer.currentScaleValue = "page-width";
+        const style = getWindow(page).getComputedStyle(page);
+        const layoutProperties = ["marginTop", "marginBottom", "borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"] as const;
+        const pageMargin = layoutProperties.map((prop) => parseInt(style[prop], 10)).reduce((a, b) => a + b, 0);
+        const pageHeights = Array.from(this.state.viewer.viewer.childNodes).map(
+            (page) => (page as HTMLElement).clientHeight,
+        );
+        this.setState({ pageHeights, pageMargin });
     };
 
     resetSelections = () => {
@@ -145,13 +164,14 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         const page = getPageFromRange(range);
         if (!page) return;
 
+        const pageOffset = this.getPageOffset(page.number);
         const rects = getClientRects(range, page.node);
         if (rects.length === 0) return;
+        const pageRects = this.rectsToLayout(page, rects);
 
-        const pageOffset = this.getPageOffset(page.number);
         const viewport = { width: page.node.clientWidth, height: page.node.clientHeight, pageOffset };
-        const boundingRect = getBoundingRect(rects);
-        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, viewport);
+        const boundingRect = getBoundingRect(pageRects);
+        const position = normalizePosition({ boundingRect, rects: pageRects, pageNumber: page.number }, viewport);
         const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
 
         this.props.onTextSelection?.({ position, text });
@@ -261,7 +281,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 container: this.state.containerNode,
                 eventBus: this.eventBus,
                 enhanceTextSelection: true,
-                removePageBorders: true,
                 linkService: this.linkService,
             }) as ViewerType);
 
@@ -277,7 +296,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     getPageViewport = (pageNumber: number) => {
         if (!this.state.viewer) return;
-        const pageView = this.state.viewer.getPageView(pageNumber);
+        const pageView = this.state.viewer.getPageView(pageNumber - 1);
         if (!pageView) return;
         return {
             ...pageView.viewport,
