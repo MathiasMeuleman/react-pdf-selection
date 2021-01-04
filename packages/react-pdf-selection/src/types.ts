@@ -14,14 +14,13 @@ export type SelectionRects = {
 
 export type Position = {
     pageNumber: number;
-    pageOffset: number;
 } & SelectionRects;
 
 export type NormalizedPosition = {
-    normalized: SelectionRects;
     absolute: SelectionRects;
+    relative: SelectionRects;
+    normalized: SelectionRects;
     pageNumber: number;
-    pageOffset: number;
 };
 
 export type EventBus = {

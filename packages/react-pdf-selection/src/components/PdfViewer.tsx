@@ -101,18 +101,16 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     containerCoords = (pageX: number, pageY: number) => {
         if (!this.state.containerNode) return;
 
-        const containerBoundingRect = this.state.containerNode.getBoundingClientRect();
-
         return {
-            x: pageX - containerBoundingRect.left + this.state.containerNode.scrollLeft,
-            y: pageY - containerBoundingRect.top + this.state.containerNode.scrollTop,
+            x: pageX - this.state.containerNode.offsetLeft,
+            y: pageY - this.state.containerNode.offsetTop,
         };
     };
 
-    getBoundingRect(start: Coords, end: Coords, pageOffset: number): BoundingRect {
+    getBoundingRect(start: Coords, end: Coords): BoundingRect {
         return {
             left: Math.min(end.x, start.x),
-            top: Math.min(end.y - pageOffset, start.y - pageOffset),
+            top: Math.min(end.y, start.y),
 
             width: Math.abs(end.x - start.x),
             height: Math.abs(end.y - start.y),
@@ -150,10 +148,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         const rects = getClientRects(range, page.node);
         if (rects.length === 0) return;
 
-        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight };
-        const boundingRect = getBoundingRect(rects);
         const pageOffset = this.getPageOffset(page.number);
-        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number, pageOffset }, viewport);
+        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight, pageOffset };
+        const boundingRect = getBoundingRect(rects);
+        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, viewport);
         const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
 
         this.props.onTextSelection?.({ position, text });
@@ -178,10 +176,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!page) return;
 
         const pageOffset = this.getPageOffset(page.number);
-        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight };
-        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageOffset);
+        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight, pageOffset };
+        const boundingRect = this.getBoundingRect(areaSelection.start, end);
         return normalizePosition(
-            { boundingRect, rects: [boundingRect], pageNumber: page.number, pageOffset },
+            { boundingRect, rects: [boundingRect], pageNumber: page.number },
             viewport,
         );
     };
@@ -200,7 +198,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!position) return;
         const pageView = this.state.viewer.getPageView(position.pageNumber - 1);
         if (!pageView) return;
-        const image = getAreaAsPNG(pageView.canvas, position.absolute.boundingRect);
+        const image = getAreaAsPNG(pageView.canvas, position.relative.boundingRect);
         this.props.onAreaSelection?.({ position, image });
         this.setState({
             areaSelection: { ...areaSelection, position, locked: true },
@@ -280,7 +278,11 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     getPageViewport = (pageNumber: number) => {
         if (!this.state.viewer) return;
         const pageView = this.state.viewer.getPageView(pageNumber);
-        return pageView?.viewport;
+        if (!pageView) return;
+        return {
+            ...pageView.viewport,
+            pageOffset: this.getPageOffset(pageNumber),
+        };
     };
 
     renderSelection = (selection: SelectionType, i: number) => {
@@ -303,10 +305,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 ref={this.pdfContainerRefCallback}
                 className="pdfViewerContainer"
                 style={{
-                    height: "100%",
-                    overflow: "auto",
-                    position: "absolute",
-                    width: "100%",
+                    position: "relative",
                     ...(this.state.textSelectionEnabled
                         ? {}
                         : {

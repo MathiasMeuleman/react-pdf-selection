@@ -5,7 +5,7 @@ export const SelectionTooltip = ({ selection }: { selection: NormalizedSelection
     <div
         className="pdfViewer__highlight-tip"
         style={{
-            top: selection.position.pageOffset + selection.position.absolute.boundingRect.top - 40,
+            top: selection.position.absolute.boundingRect.top - 40,
             position: "absolute",
             zIndex: 99,
             width: "120px",
