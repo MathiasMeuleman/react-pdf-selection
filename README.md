@@ -80,6 +80,7 @@ pageOffset | number | yes | The total offset in height, caused by all the `pageN
 Property | Type | Required | Notes
 :---|:---|:---|:---
 absolute | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The absolute bounding rectangle of the entire selection, with coordinates corresponding to the current page dimensions.
+relative | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The relative bounding rectangle of the selection, with coordinates relative to the current page.
 normalized | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The normalized bounding rectangle of the entire selection, with coordinates normalized to the current page dimensions.
 pageNumber | number | yes | 1-based page number on which the selection is made.
 pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
