@@ -7,6 +7,7 @@ import React, { Component } from "react";
 // import "../style/pdf_viewer.css";
 import "../style/react_pdf_viewer.css";
 import {Document, Page, pdfjs} from "react-pdf";
+import {debounce} from "../../dist/utils/debounce";
 import {
     BoundingRect,
     EventBus as EventBusType,
@@ -71,6 +72,7 @@ interface PdfViewerProps {
 }
 
 interface PdfViewerState {
+    containerWidth?: number;
     containerNode?: HTMLDivElement;
     viewer?: ViewerType;
     pageHeights: number[];
@@ -273,12 +275,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         document.defaultView?.removeEventListener("resize", this.resize);
     };
 
-    componentDidUpdate(prevProps: PdfViewerProps) {
-        if (prevProps.pdfDocument !== this.props.pdfDocument) {
-            this.mountDocument();
-            return;
-        }
-    }
+    // componentDidUpdate(prevProps: PdfViewerProps) {
+    //     if (prevProps.pdfDocument !== this.props.pdfDocument) {
+    //         this.mountDocument();
+    //         return;
+    //     }
+    // }
 
     mountDocument = () => {
         this.removeEventListeners();
@@ -360,6 +362,24 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     //     );
     // };
 
+    containerDiv: HTMLElement | null = null;
+
+    componentDidMount = () => {
+        this.setContainerWidth();
+        document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
+    };
+
+    componentWillUnmount = () => {
+        document.defaultView?.removeEventListener("resize", this.debouncedSetContainerWidth);
+    };
+
+    setContainerWidth = () => {
+        if (!this.containerDiv) return;
+        this.setState({containerWidth: this.containerDiv.getBoundingClientRect().width});
+    };
+
+    debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
+
     removeTextLayerOffset = (pageNumber: number) => {
         const textLayer = document.querySelectorAll<HTMLElement>(".react-pdf__Page__textContent")[pageNumber - 1];
         if (!textLayer) return;
@@ -375,16 +395,27 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     render = () => {
         return (
-            <Document file={this.props.url} onLoadSuccess={this.onDocumentLoad} options={{removePageBorders: false}}>
-                {
-                    Array.from(
-                        new Array(this.state.numPages),
-                        (el, index) => {
-                            return (
+            <div
+                ref={(ref) => this.containerDiv = ref}
+                style={{
+                    position: "relative",
+                    width: "100%",
+                }}
+            >
+                <Document
+                    file={this.props.url}
+                    onLoadSuccess={this.onDocumentLoad}
+                    options={{removePageBorders: false}}
+                >
+                    {
+                        Array.from(
+                            new Array(this.state.numPages),
+                        (el, index) => (
                                 <Page
                                     key={`page_${index + 1}`}
                                     pageNumber={index + 1}
                                     onLoadSuccess={(page) => this.removeTextLayerOffset(page.pageNumber)}
+                                    width={this.state.containerWidth}
                                 >
                                     <div
                                         style={{
@@ -398,11 +429,11 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                                         }}
                                     />
                                 </Page>
-                            );
-                        },
-                    )
-                }
-            </Document>
+                            ),
+                        )
+                    }
+                </Document>
+            </div>
         );
     };
 }
