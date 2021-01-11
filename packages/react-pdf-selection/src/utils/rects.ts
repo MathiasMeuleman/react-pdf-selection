@@ -69,7 +69,6 @@ export const getClientRects = (
     const clientRects = Array.from(range.getClientRects());
 
     const offset = containerEl.getBoundingClientRect();
-    console.log(offset, containerEl);
 
     const rects = clientRects.map((rect) => {
         const top = rect.top + containerEl.scrollTop - offset.top;
