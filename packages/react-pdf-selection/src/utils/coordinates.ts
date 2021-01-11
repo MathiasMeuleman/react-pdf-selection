@@ -28,12 +28,9 @@ export const normalizePosition = (position: Position, dimensions: Dimensions): N
     };
 };
 
-export const boundingRectToStyle = (rect: BoundingRect, { width, height }: Dimensions) => {
-    console.log(rect, {width, height});
-    return ({
-        left: `${rect.left}%`,
-        top: `${rect.top}%`,
-        width: (rect.right - rect.left) * width / 100,
-        height: (rect.bottom - rect.top) * height / 100,
-    });
-};
+export const boundingRectToStyle = (rect: BoundingRect, { width, height }: Dimensions) => ({
+    left: `${rect.left}%`,
+    top: `${rect.top}%`,
+    width: (rect.right - rect.left) * width / 100,
+    height: (rect.bottom - rect.top) * height / 100,
+});

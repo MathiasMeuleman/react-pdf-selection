@@ -1,9 +1,7 @@
-// import "pdfjs-dist/web/pdf_viewer.css";
 import React, { Component } from "react";
-// import "../style/pdf_viewer.css";
-import "../style/react_pdf_viewer.css";
-import {Document, Page, pdfjs} from "react-pdf";
+import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "../style/react_pdf_viewer.css";
 import {debounce} from "../../dist/utils/debounce";
 import {
     BoundingRect,
@@ -21,9 +19,7 @@ import {
     getWindow,
 } from "../utils";
 import { normalizePosition } from "../utils/coordinates";
-import { AreaSelection } from "./AreaSelection";
-import { NewAreaSelection } from "./NewAreaSelection";
-import { TextSelection } from "./TextSelection";
+import {PdfPage} from "./PdfPage";
 
 export type Coords = {
     x: number;
@@ -54,7 +50,7 @@ export type NormalizedAreaSelection = {
 
 export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelection;
 
-const isAreaSelection = (selection: SelectionType): selection is AreaSelectionType => "image" in selection;
+export const isAreaSelection = (selection: SelectionType): selection is AreaSelectionType => "image" in selection;
 
 interface PdfViewerProps {
     url: string;
@@ -268,36 +264,9 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
 
-    removeTextLayerOffset = (pageNumber: number) => {
-        const textLayer = document.querySelectorAll<HTMLElement>(".react-pdf__Page__textContent")[pageNumber - 1];
-        if (!textLayer) return;
-        const { style } = textLayer;
-        style.top = "0";
-        style.left = "0";
-        style.transform = "";
-    };
-
     onDocumentLoad = ({ numPages }: pdfjs.PDFDocumentProxy) => {
-        this.setState({numPages});
-    };
-
-    onPageLoad = (page: pdfjs.PDFPageProxy) => {
-        this.removeTextLayerOffset(page.pageNumber);
         this.setContainerWidth();
-    };
-
-    renderPageSelections = (pageNumber: number) => {
-        const selections = this.selectionMap?.[pageNumber];
-        if (!selections || !this.state.pageDimensions[pageNumber]) return null;
-        const selectionRenders = selections.map((selection, i) => {
-            const normalizedSelection = {...selection, position: selection.position};
-            return isAreaSelection(normalizedSelection) ? (
-                <AreaSelection key={i} areaSelection={normalizedSelection} />
-            ) : (
-                <TextSelection key={i} textSelection={normalizedSelection} dimensions={this.state.pageDimensions[pageNumber]} />
-            );
-        });
-        return <>{selectionRenders}</>;
+        this.setState({numPages});
     };
 
     render = () => {
@@ -320,14 +289,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                         Array.from(
                             new Array(this.state.numPages),
                         (el, index) => (
-                                <Page
-                                    key={`page_${index + 1}`}
+                                <PdfPage
+                                    key={index}
                                     pageNumber={index + 1}
-                                    onLoadSuccess={this.onPageLoad}
                                     width={this.state.containerWidth}
-                                >
-                                    {this.renderPageSelections(index + 1)}
-                                </Page>
+                                    selections={this.selectionMap?.[index + 1]}
+                                />
                             ),
                         )
                     }
