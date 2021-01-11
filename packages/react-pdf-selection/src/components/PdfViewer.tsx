@@ -1,10 +1,12 @@
-import { PDFDocumentProxy } from "pdfjs-dist";
+import {PDFDocumentProxy} from "pdfjs-dist";
 // @ts-ignore-next-line
 import { EventBus, PDFLinkService, PDFViewer } from "pdfjs-dist/web/pdf_viewer";
 
-import "pdfjs-dist/web/pdf_viewer.css";
+// import "pdfjs-dist/web/pdf_viewer.css";
 import React, { Component } from "react";
-import "../style/pdf_viewer.css";
+// import "../style/pdf_viewer.css";
+import "../style/react_pdf_viewer.css";
+import {Document, Page, pdfjs} from "react-pdf";
 import {
     BoundingRect,
     EventBus as EventBusType,
@@ -60,7 +62,8 @@ export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelect
 const isAreaSelection = (selection: SelectionType): selection is AreaSelectionType => "image" in selection;
 
 interface PdfViewerProps {
-    pdfDocument: PDFDocumentProxy;
+    url: string;
+    pdfDocument?: PDFDocumentProxy;
     selections?: Array<SelectionType>;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
@@ -79,13 +82,17 @@ interface PdfViewerState {
         position?: NormalizedPosition;
         locked?: boolean;
     };
+    numPages: number;
 }
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     state: PdfViewerState = {
         pageHeights: [],
         pageMargin: 0,
         textSelectionEnabled: true,
+        numPages: 0,
     };
     eventBus: EventBusType = new EventBus();
     linkService: LinkServiceType = new PDFLinkService({ eventBus: this.eventBus });
@@ -284,9 +291,9 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 linkService: this.linkService,
             }) as ViewerType);
 
-        this.linkService.setDocument(this.props.pdfDocument);
+        // this.linkService.setDocument(this.props.pdfDocument);
         this.linkService.setViewer(viewer);
-        viewer.setDocument(this.props.pdfDocument);
+        // viewer.setDocument(this.props.pdfDocument);
 
         this.setState({ viewer });
         this.addEventListeners();
@@ -315,41 +322,87 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         );
     };
 
+    // render = () => {
+    //     const newAreaViewport = this.state.areaSelection?.position
+    //         ? this.getPageViewport(this.state.areaSelection.position.pageNumber)
+    //         : undefined;
+    //     return (
+    //         <div
+    //             ref={this.pdfContainerRefCallback}
+    //             className="pdfViewerContainer"
+    //             style={{
+    //                 position: "relative",
+    //                 ...(this.state.textSelectionEnabled
+    //                     ? {}
+    //                     : {
+    //                           userSelect: "none",
+    //                           pointerEvents: "none",
+    //                       }),
+    //             }}
+    //             onContextMenu={(e) => e.preventDefault()}
+    //             onPointerDown={this.onMouseDown}
+    //         >
+    //             <div className="pdfViewer" />
+    //             <div className="pdfViewer__area-selection">
+    //                 {this.state.areaSelection?.position && newAreaViewport && (
+    //                     <NewAreaSelection
+    //                         position={viewportPosition(this.state.areaSelection.position, newAreaViewport)}
+    //                     />
+    //                 )}
+    //             </div>
+    //             <div>
+    //                 {this.props.selections?.map((selection, i) => {
+    //                     return this.renderSelection(selection, i);
+    //                 })}
+    //             </div>
+    //             {this.props.children}
+    //         </div>
+    //     );
+    // };
+
+    removeTextLayerOffset = (pageNumber: number) => {
+        const textLayer = document.querySelectorAll<HTMLElement>(".react-pdf__Page__textContent")[pageNumber - 1];
+        if (!textLayer) return;
+        const { style } = textLayer;
+        style.top = "0";
+        style.left = "0";
+        style.transform = "";
+    };
+
+    onDocumentLoad = ({ numPages }: PDFDocumentProxy) => {
+        this.setState({numPages});
+    };
+
     render = () => {
-        const newAreaViewport = this.state.areaSelection?.position
-            ? this.getPageViewport(this.state.areaSelection.position.pageNumber)
-            : undefined;
         return (
-            <div
-                ref={this.pdfContainerRefCallback}
-                className="pdfViewerContainer"
-                style={{
-                    position: "relative",
-                    ...(this.state.textSelectionEnabled
-                        ? {}
-                        : {
-                              userSelect: "none",
-                              pointerEvents: "none",
-                          }),
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-                onPointerDown={this.onMouseDown}
-            >
-                <div className="pdfViewer" />
-                <div className="pdfViewer__area-selection">
-                    {this.state.areaSelection?.position && newAreaViewport && (
-                        <NewAreaSelection
-                            position={viewportPosition(this.state.areaSelection.position, newAreaViewport)}
-                        />
-                    )}
-                </div>
-                <div>
-                    {this.props.selections?.map((selection, i) => {
-                        return this.renderSelection(selection, i);
-                    })}
-                </div>
-                {this.props.children}
-            </div>
+            <Document file={this.props.url} onLoadSuccess={this.onDocumentLoad} options={{removePageBorders: false}}>
+                {
+                    Array.from(
+                        new Array(this.state.numPages),
+                        (el, index) => {
+                            return (
+                                <Page
+                                    key={`page_${index + 1}`}
+                                    pageNumber={index + 1}
+                                    onLoadSuccess={(page) => this.removeTextLayerOffset(page.pageNumber)}
+                                >
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: 100,
+                                            left: 100,
+                                            width: 100,
+                                            height: 100,
+                                            background: "rgba(255, 226, 143, 1)",
+                                            mixBlendMode: "multiply",
+                                        }}
+                                    />
+                                </Page>
+                            );
+                        },
+                    )
+                }
+            </Document>
         );
     };
 }
