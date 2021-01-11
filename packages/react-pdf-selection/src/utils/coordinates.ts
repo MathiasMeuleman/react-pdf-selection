@@ -1,66 +1,39 @@
 import { BoundingRect, NormalizedPosition, Position } from "../types";
 
-type Viewport = {
+export type Dimensions = {
     width: number;
     height: number;
-    pageOffset: number;
 };
 
-export const relativizeBoundingRect = (rect: BoundingRect, { pageOffset }: Viewport): BoundingRect => {
+export const normalizeBoundingRect = (rect: BoundingRect, { width, height }: Dimensions): BoundingRect => {
     return {
-        ...rect,
-        top: rect.top - pageOffset,
+        left: (rect.left * 100) / width,
+        top: (rect.top * 100) / height,
+        right: (rect.right * 100) / width,
+        bottom: (rect.bottom * 100) / height,
     };
 };
 
-export const normalizeBoundingRect = (rect: BoundingRect, { width, height, pageOffset }: Viewport): BoundingRect => {
-    return {
-        left: rect.left / width,
-        top: (rect.top - pageOffset) / height,
-        width: rect.width / width,
-        height: rect.height / height,
-    };
-};
-
-export const normalizePosition = (position: Position, viewport: Viewport): NormalizedPosition => {
+export const normalizePosition = (position: Position, dimensions: Dimensions): NormalizedPosition => {
     return {
         absolute: {
             boundingRect: position.boundingRect,
             rects: position.rects,
         },
-        relative: {
-            boundingRect: relativizeBoundingRect(position.boundingRect, viewport),
-            rects: position.rects.map((rect) => relativizeBoundingRect(rect, viewport)),
-        },
         normalized: {
-            boundingRect: normalizeBoundingRect(position.boundingRect, viewport),
-            rects: position.rects.map((rect) => normalizeBoundingRect(rect, viewport)),
+            boundingRect: normalizeBoundingRect(position.boundingRect, dimensions),
+            rects: position.rects.map((rect) => normalizeBoundingRect(rect, dimensions)),
         },
         pageNumber: position.pageNumber,
     };
 };
 
-export const viewportBoundingRect = (rect: BoundingRect, { width, height, pageOffset }: Viewport): BoundingRect => {
-    return {
-        left: rect.left * width,
-        top: rect.top * height + pageOffset,
-        width: rect.width * width,
-        height: rect.height * height,
-    };
-};
-
-export const positionToViewport = (position: Position, viewport: Viewport): Position => {
-    return {
-        boundingRect: viewportBoundingRect(position.boundingRect, viewport),
-        rects: position.rects.map((rect) => viewportBoundingRect(rect, viewport)),
-        pageNumber: position.pageNumber,
-    };
-};
-
-export const viewportPosition = (position: NormalizedPosition, viewport: Viewport): Position => {
-    return {
-        boundingRect: viewportBoundingRect(position.normalized.boundingRect, viewport),
-        rects: position.normalized.rects.map((rect) => viewportBoundingRect(rect, viewport)),
-        pageNumber: position.pageNumber,
-    };
+export const boundingRectToStyle = (rect: BoundingRect, { width, height }: Dimensions) => {
+    console.log(rect, {width, height});
+    return ({
+        left: `${rect.left}%`,
+        top: `${rect.top}%`,
+        width: (rect.right - rect.left) * width / 100,
+        height: (rect.bottom - rect.top) * height / 100,
+    });
 };

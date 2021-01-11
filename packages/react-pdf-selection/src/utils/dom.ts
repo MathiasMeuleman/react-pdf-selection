@@ -3,7 +3,7 @@ export const getDocument = (elm: any): Document => (elm || {}).ownerDocument || 
 export const getWindow = (elm: any): typeof window => (getDocument(elm) || {}).defaultView || window;
 
 export const getPageFromElement = (target: HTMLElement) => {
-    const node = target.closest<HTMLElement>(".page");
+    const node = target.closest<HTMLElement>(".react-pdf__Page");
 
     if (!node) return null;
 

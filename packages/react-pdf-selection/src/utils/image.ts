@@ -1,7 +1,9 @@
 import { BoundingRect } from "../types";
 
 export const getAreaAsPNG = (canvas: HTMLCanvasElement, position: BoundingRect): string => {
-    const { left, top, width, height } = position;
+    const { left, top, right, bottom } = position;
+    const width = right - left;
+    const height = bottom - top;
 
     const newCanvas = canvas.ownerDocument.createElement("canvas");
     newCanvas.width = width;

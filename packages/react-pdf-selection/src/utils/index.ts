@@ -1,9 +1,11 @@
-import { viewportPosition, positionToViewport } from "./coordinates";
+import { boundingRectToStyle, Dimensions } from "./coordinates";
 import { getDocument, findOrCreateContainerLayer, getPageFromElement, getPageFromRange, getWindow } from "./dom";
 import { getAreaAsPNG } from "./image";
 import { getBoundingRect, getClientRects } from "./rects";
 
 export {
+    Dimensions,
+    boundingRectToStyle,
     getBoundingRect,
     getClientRects,
     getDocument,
@@ -12,6 +14,4 @@ export {
     getWindow,
     getPageFromRange,
     getPageFromElement,
-    viewportPosition,
-    positionToViewport,
 };

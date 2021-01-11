@@ -1,30 +1,24 @@
-import {PDFDocumentProxy} from "pdfjs-dist";
-// @ts-ignore-next-line
-import { EventBus, PDFLinkService, PDFViewer } from "pdfjs-dist/web/pdf_viewer";
-
 // import "pdfjs-dist/web/pdf_viewer.css";
 import React, { Component } from "react";
 // import "../style/pdf_viewer.css";
 import "../style/react_pdf_viewer.css";
 import {Document, Page, pdfjs} from "react-pdf";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import {debounce} from "../../dist/utils/debounce";
 import {
     BoundingRect,
-    EventBus as EventBusType,
-    LinkService as LinkServiceType,
     NormalizedPosition,
     Position,
     Viewer as ViewerType,
 } from "../types";
 import {
+    Dimensions,
     getAreaAsPNG,
     getBoundingRect,
     getClientRects,
     getPageFromElement,
     getPageFromRange,
     getWindow,
-    positionToViewport,
-    viewportPosition,
 } from "../utils";
 import { normalizePosition } from "../utils/coordinates";
 import { AreaSelection } from "./AreaSelection";
@@ -64,7 +58,6 @@ const isAreaSelection = (selection: SelectionType): selection is AreaSelectionTy
 
 interface PdfViewerProps {
     url: string;
-    pdfDocument?: PDFDocumentProxy;
     selections?: Array<SelectionType>;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
@@ -73,10 +66,9 @@ interface PdfViewerProps {
 
 interface PdfViewerState {
     containerWidth?: number;
+    pageDimensions: { [key: number]: Dimensions };
     containerNode?: HTMLDivElement;
     viewer?: ViewerType;
-    pageHeights: number[];
-    pageMargin: number;
     textSelectionEnabled: boolean;
     areaSelection?: {
         originTarget?: HTMLElement;
@@ -91,23 +83,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     state: PdfViewerState = {
-        pageHeights: [],
-        pageMargin: 0,
+        pageDimensions: {},
         textSelectionEnabled: true,
         numPages: 0,
-    };
-    eventBus: EventBusType = new EventBus();
-    linkService: LinkServiceType = new PDFLinkService({ eventBus: this.eventBus });
-
-    pdfContainerRefCallback = (ref: HTMLDivElement) => {
-        if (ref) {
-            this.setState({ containerNode: ref }, () => this.mountDocument());
-        }
-    };
-
-    getPageOffset = (pageNumber: number) => {
-        const { pageHeights, pageMargin } = this.state;
-        return pageHeights.slice(0, pageNumber - 1).reduce((a, b) => a + b + pageMargin, 0);
     };
 
     containerCoords = (pageX: number, pageY: number) => {
@@ -123,37 +101,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         return {
             left: Math.min(end.x, start.x),
             top: Math.min(end.y, start.y),
-
-            width: Math.abs(end.x - start.x),
-            height: Math.abs(end.y - start.y),
+            right: Math.max(end.x, start.x),
+            bottom: Math.max(end.y, start.y),
         };
     }
-
-    rectsToLayout = (page: { node: HTMLElement; number: number }, rects: BoundingRect[]) => {
-        return rects.map((rect) => {
-            const style = getWindow(page.node).getComputedStyle(page.node);
-            const offsetLeft = parseInt(style.borderLeftWidth, 10) + parseInt(style.paddingLeft, 10);
-            const offsetTopPage = parseInt(style.borderTopWidth, 10) + parseInt(style.paddingTop, 10);
-            const pageOffset = this.getPageOffset(page.number);
-            const offsetTop = pageOffset > 0 ? pageOffset - this.state.pageMargin + offsetTopPage : offsetTopPage;
-            return {...rect, left: rect.left + offsetLeft, top: rect.top + offsetTop};
-        });
-    };
-
-    resize = () => {
-        if (!this.state.viewer) return;
-        const page = this.state.viewer.viewer.firstElementChild;
-        if (!page) return;
-
-        this.state.viewer.currentScaleValue = "page-width";
-        const style = getWindow(page).getComputedStyle(page);
-        const layoutProperties = ["marginTop", "marginBottom", "borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"] as const;
-        const pageMargin = layoutProperties.map((prop) => parseInt(style[prop], 10)).reduce((a, b) => a + b, 0);
-        const pageHeights = Array.from(this.state.viewer.viewer.childNodes).map(
-            (page) => (page as HTMLElement).clientHeight,
-        );
-        this.setState({ pageHeights, pageMargin });
-    };
 
     resetSelections = () => {
         this.props.onTextSelection?.();
@@ -162,8 +113,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     onSelectionChange = () => {
-        if (!this.state.viewer) return;
-
         const selection = getWindow(this.state.containerNode).getSelection();
         if (!selection || selection.isCollapsed) return;
 
@@ -172,15 +121,14 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
         const page = getPageFromRange(range);
         if (!page) return;
+        const pageDimension = this.state.pageDimensions[page.number];
+        if (!pageDimension) return;
 
-        const pageOffset = this.getPageOffset(page.number);
         const rects = getClientRects(range, page.node);
         if (rects.length === 0) return;
-        const pageRects = this.rectsToLayout(page, rects);
 
-        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight, pageOffset };
-        const boundingRect = getBoundingRect(pageRects);
-        const position = normalizePosition({ boundingRect, rects: pageRects, pageNumber: page.number }, viewport);
+        const boundingRect = getBoundingRect(rects);
+        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, pageDimension);
         const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
 
         this.props.onTextSelection?.({ position, text });
@@ -204,8 +152,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         const page = getPageFromElement(areaSelection.originTarget);
         if (!page) return;
 
-        const pageOffset = this.getPageOffset(page.number);
-        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight, pageOffset };
+        const viewport = { width: page.node.clientWidth, height: page.node.clientHeight };
         const boundingRect = this.getBoundingRect(areaSelection.start, end);
         return normalizePosition(
             { boundingRect, rects: [boundingRect], pageNumber: page.number },
@@ -227,7 +174,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!position) return;
         const pageView = this.state.viewer.getPageView(position.pageNumber - 1);
         if (!pageView) return;
-        const image = getAreaAsPNG(pageView.canvas, position.relative.boundingRect);
+        const image = getAreaAsPNG(pageView.canvas, position.absolute.boundingRect);
         this.props.onAreaSelection?.({ position, image });
         this.setState({
             areaSelection: { ...areaSelection, position, locked: true },
@@ -261,123 +208,62 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (event.code === "Escape") this.props.onTextSelection?.();
     };
 
-    addEventListeners = () => {
-        this.eventBus.on("pagesinit", this.resize);
+    /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
+    BORDER_WIDTH_OFFSET = 0;
+
+    containerDiv: HTMLElement | null = null;
+
+    selectionMap: { [key: number]: SelectionType[] } | undefined;
+
+    componentDidMount = () => {
+        this.computeSelectionMap();
         document.addEventListener("keydown", this.onKeyDown);
         document.addEventListener("selectionchange", this.onSelectionChange);
-        document.defaultView?.addEventListener("resize", this.resize);
-    };
+        document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
 
-    removeEventListeners = () => {
-        this.eventBus.off("pagesinit", this.resize);
-        document.removeEventListener("keydown", this.onKeyDown);
-        document.removeEventListener("selectionchange", this.onSelectionChange);
-        document.defaultView?.removeEventListener("resize", this.resize);
-    };
-
-    // componentDidUpdate(prevProps: PdfViewerProps) {
-    //     if (prevProps.pdfDocument !== this.props.pdfDocument) {
-    //         this.mountDocument();
-    //         return;
-    //     }
-    // }
-
-    mountDocument = () => {
-        this.removeEventListeners();
-        const viewer =
-            this.state.viewer ||
-            (new PDFViewer({
-                container: this.state.containerNode,
-                eventBus: this.eventBus,
-                enhanceTextSelection: true,
-                linkService: this.linkService,
-            }) as ViewerType);
-
-        // this.linkService.setDocument(this.props.pdfDocument);
-        this.linkService.setViewer(viewer);
-        // viewer.setDocument(this.props.pdfDocument);
-
-        this.setState({ viewer });
-        this.addEventListeners();
         // debug
         (window as any).PdfViewer = this;
     };
 
-    getPageViewport = (pageNumber: number) => {
-        if (!this.state.viewer) return;
-        const pageView = this.state.viewer.getPageView(pageNumber - 1);
-        if (!pageView) return;
-        return {
-            ...pageView.viewport,
-            pageOffset: this.getPageOffset(pageNumber),
-        };
-    };
-
-    renderSelection = (selection: SelectionType, i: number) => {
-        const pageViewport = this.getPageViewport(selection.position.pageNumber);
-        if (!pageViewport) return null;
-        const normalizedSelection = { ...selection, position: positionToViewport(selection.position, pageViewport) };
-        return isAreaSelection(normalizedSelection) ? (
-            <AreaSelection key={i} areaSelection={normalizedSelection} />
-        ) : (
-            <TextSelection key={i} textSelection={normalizedSelection} />
-        );
-    };
-
-    // render = () => {
-    //     const newAreaViewport = this.state.areaSelection?.position
-    //         ? this.getPageViewport(this.state.areaSelection.position.pageNumber)
-    //         : undefined;
-    //     return (
-    //         <div
-    //             ref={this.pdfContainerRefCallback}
-    //             className="pdfViewerContainer"
-    //             style={{
-    //                 position: "relative",
-    //                 ...(this.state.textSelectionEnabled
-    //                     ? {}
-    //                     : {
-    //                           userSelect: "none",
-    //                           pointerEvents: "none",
-    //                       }),
-    //             }}
-    //             onContextMenu={(e) => e.preventDefault()}
-    //             onPointerDown={this.onMouseDown}
-    //         >
-    //             <div className="pdfViewer" />
-    //             <div className="pdfViewer__area-selection">
-    //                 {this.state.areaSelection?.position && newAreaViewport && (
-    //                     <NewAreaSelection
-    //                         position={viewportPosition(this.state.areaSelection.position, newAreaViewport)}
-    //                     />
-    //                 )}
-    //             </div>
-    //             <div>
-    //                 {this.props.selections?.map((selection, i) => {
-    //                     return this.renderSelection(selection, i);
-    //                 })}
-    //             </div>
-    //             {this.props.children}
-    //         </div>
-    //     );
-    // };
-
-    /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
-    BORDER_WIDTH_OFFSET = 18;
-
-    containerDiv: HTMLElement | null = null;
-
-    componentDidMount = () => {
-        document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
+    componentDidUpdate = (nextProps: PdfViewerProps) => {
+        if (this.props.selections !== nextProps.selections)
+            this.computeSelectionMap();
     };
 
     componentWillUnmount = () => {
+        document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("selectionchange", this.onSelectionChange);
         document.defaultView?.removeEventListener("resize", this.debouncedSetContainerWidth);
+    };
+
+    computeSelectionMap = () => {
+        if (!this.props.selections) {
+            this.selectionMap = undefined;
+            return;
+        }
+        const selectionMap: { [key: number]: SelectionType[] } = {};
+        this.props.selections.forEach((selection) => {
+            selectionMap[selection.position.pageNumber] = [
+                ...selectionMap[selection.position.pageNumber] ?? [],
+                selection,
+            ];
+        });
+        this.selectionMap = selectionMap;
     };
 
     setContainerWidth = () => {
         if (!this.containerDiv) return;
-        this.setState({containerWidth: this.containerDiv.getBoundingClientRect().width - this.BORDER_WIDTH_OFFSET});
+        const pageDimensions: { [key: number]: Dimensions } = {};
+        this.containerDiv.childNodes[0]?.childNodes.forEach((page, i) => {
+            pageDimensions[i + 1] = {
+                width: (page.childNodes[0] as HTMLCanvasElement).width,
+                height: (page.childNodes[0] as HTMLCanvasElement).height,
+            };
+        });
+        this.setState({
+            pageDimensions,
+            containerWidth: this.containerDiv.getBoundingClientRect().width - this.BORDER_WIDTH_OFFSET,
+        });
     };
 
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
@@ -391,13 +277,27 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         style.transform = "";
     };
 
-    onDocumentLoad = ({ numPages }: PDFDocumentProxy) => {
+    onDocumentLoad = ({ numPages }: pdfjs.PDFDocumentProxy) => {
         this.setState({numPages});
     };
 
     onPageLoad = (page: pdfjs.PDFPageProxy) => {
         this.removeTextLayerOffset(page.pageNumber);
         this.setContainerWidth();
+    };
+
+    renderPageSelections = (pageNumber: number) => {
+        const selections = this.selectionMap?.[pageNumber];
+        if (!selections || !this.state.pageDimensions[pageNumber]) return null;
+        const selectionRenders = selections.map((selection, i) => {
+            const normalizedSelection = {...selection, position: selection.position};
+            return isAreaSelection(normalizedSelection) ? (
+                <AreaSelection key={i} areaSelection={normalizedSelection} />
+            ) : (
+                <TextSelection key={i} textSelection={normalizedSelection} dimensions={this.state.pageDimensions[pageNumber]} />
+            );
+        });
+        return <>{selectionRenders}</>;
     };
 
     render = () => {
@@ -408,6 +308,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                     position: "relative",
                     width: "100%",
                 }}
+                onContextMenu={(e) => e.preventDefault()}
+                onPointerDown={this.onMouseDown}
             >
                 <Document
                     file={this.props.url}
@@ -424,17 +326,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                                     onLoadSuccess={this.onPageLoad}
                                     width={this.state.containerWidth}
                                 >
-                                    <div
-                                        style={{
-                                            position: "absolute",
-                                            top: 0,
-                                            left: 0,
-                                            width: 100,
-                                            height: 100,
-                                            background: "rgba(255, 226, 143, 1)",
-                                            mixBlendMode: "multiply",
-                                        }}
-                                    />
+                                    {this.renderPageSelections(index + 1)}
                                 </Page>
                             ),
                         )

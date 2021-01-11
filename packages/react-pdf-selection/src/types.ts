@@ -3,8 +3,8 @@ import { PDFDocumentProxy, PDFPageViewport } from "pdfjs-dist";
 export type BoundingRect = {
     left: number;
     top: number;
-    width: number;
-    height: number;
+    right: number;
+    bottom: number;
 };
 
 export type SelectionRects = {
@@ -18,7 +18,6 @@ export type Position = {
 
 export type NormalizedPosition = {
     absolute: SelectionRects;
-    relative: SelectionRects;
     normalized: SelectionRects;
     pageNumber: number;
 };

@@ -1,4 +1,4 @@
-import { BoundingRect } from "../types";
+import {BoundingRect} from "../types";
 
 const sort = (rects: Array<BoundingRect>) =>
     rects.sort((A, B) => {
@@ -11,24 +11,16 @@ const sort = (rects: Array<BoundingRect>) =>
         return top;
     });
 
-const overlaps = (A: BoundingRect, B: BoundingRect) => A.left <= B.left && B.left <= A.left + A.width;
+const overlaps = (A: BoundingRect, B: BoundingRect) => A.left <= B.left && B.left <= A.right;
 
 const sameLine = (A: BoundingRect, B: BoundingRect, yMargin = 5) =>
-    Math.abs(A.top - B.top) < yMargin && Math.abs(A.height - B.height) < yMargin;
+    Math.abs(A.top - B.top) < yMargin && Math.abs(A.bottom - B.bottom) < yMargin;
 
 const inside = (A: BoundingRect, B: BoundingRect) =>
-    A.top > B.top && A.left > B.left && A.top + A.height < B.top + B.height && A.left + A.width < B.left + B.width;
+    A.top > B.top && A.left > B.left && A.bottom < B.bottom && A.right < B.right;
 
 const nextTo = (A: BoundingRect, B: BoundingRect, xMargin = 10) => {
-    const Aright = A.left + A.width;
-    const Bright = B.left + B.width;
-
-    return A.left <= B.left && Aright <= Bright && B.left - Aright <= xMargin;
-};
-
-const extendWidth = (A: BoundingRect, B: BoundingRect) => {
-    // extend width of A to cover B
-    A.width = Math.max(B.width - A.left + B.left, A.width);
+    return A.left <= B.left && A.right <= B.right && B.left - A.right <= xMargin;
 };
 
 const optimizeClientRects = (clientRects: Array<BoundingRect>): Array<BoundingRect> => {
@@ -55,15 +47,9 @@ const optimizeClientRects = (clientRects: Array<BoundingRect>): Array<BoundingRe
                     return;
                 }
 
-                if (overlaps(A, B)) {
-                    extendWidth(A, B);
-                    A.height = Math.max(A.height, B.height);
-
-                    toRemove.add(B);
-                }
-
-                if (nextTo(A, B)) {
-                    extendWidth(A, B);
+                if (overlaps(A, B) || nextTo(A, B)) {
+                    A.right = Math.max(A.right, B.right);
+                    A.bottom = Math.max(A.bottom, B.bottom);
 
                     toRemove.add(B);
                 }
@@ -83,13 +69,16 @@ export const getClientRects = (
     const clientRects = Array.from(range.getClientRects());
 
     const offset = containerEl.getBoundingClientRect();
+    console.log(offset, containerEl);
 
     const rects = clientRects.map((rect) => {
+        const top = rect.top + containerEl.scrollTop - offset.top;
+        const left = rect.left + containerEl.scrollLeft - offset.left;
         return {
-            top: rect.top + containerEl.scrollTop - offset.top,
-            left: rect.left + containerEl.scrollLeft - offset.left,
-            width: rect.width,
-            height: rect.height,
+            top,
+            left,
+            right: left + rect.width,
+            bottom: top + rect.height,
         };
     });
 
@@ -97,34 +86,13 @@ export const getClientRects = (
 };
 
 export const getBoundingRect = (clientRects: Array<BoundingRect>): BoundingRect => {
-    const rects = Array.from(clientRects).map((rect) => {
-        const { left, top, width, height } = rect;
-
-        const X0 = left;
-        const X1 = left + width;
-
-        const Y0 = top;
-        const Y1 = top + height;
-
-        return { X0, X1, Y0, Y1 };
-    });
-
-    const optimal = rects.reduce((res, rect) => {
+    return clientRects.reduce((res, rect) => {
         return {
-            X0: Math.min(res.X0, rect.X0),
-            X1: Math.max(res.X1, rect.X1),
+            left: Math.min(res.left, rect.left),
+            top: Math.min(res.top, rect.top),
 
-            Y0: Math.min(res.Y0, rect.Y0),
-            Y1: Math.max(res.Y1, rect.Y1),
+            right: Math.max(res.right, rect.right),
+            bottom: Math.max(res.bottom, rect.bottom),
         };
-    }, rects[0]);
-
-    const { X0, X1, Y0, Y1 } = optimal;
-
-    return {
-        left: X0,
-        top: Y0,
-        width: X1 - X0,
-        height: Y1 - Y0,
-    };
+    }, clientRects[0]);
 };

@@ -1,13 +1,14 @@
 import React from "react";
+import {boundingRectToStyle, Dimensions} from "../utils";
 import { TextSelectionType } from "./PdfViewer";
 
-export const TextSelection = ({ textSelection }: { textSelection: TextSelectionType }) => (
+export const TextSelection = ({ textSelection, dimensions }: { textSelection: TextSelectionType; dimensions: Dimensions }) => (
     <div>
         {textSelection.position.rects.map((rect, i) => (
             <div
                 key={i}
                 style={{
-                    ...rect,
+                    ...boundingRectToStyle(rect, dimensions),
                     cursor: "pointer",
                     position: "absolute",
                     background: "rgba(255, 226, 143, 1)",
