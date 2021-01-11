@@ -34,7 +34,7 @@ async function publish() {
         to: "index",
     });
     await runnpm(["publish"], {cwd: "./dist"});
-    await runnpm(["deploy"], {cwd: "../examples"});
+    await runnpm(["run", "deploy"], {cwd: "../examples"});
     r1.close();
 }
 
