@@ -362,10 +362,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     //     );
     // };
 
+    /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
+    BORDER_WIDTH_OFFSET = 18;
+
     containerDiv: HTMLElement | null = null;
 
     componentDidMount = () => {
-        this.setContainerWidth();
         document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
     };
 
@@ -375,7 +377,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     setContainerWidth = () => {
         if (!this.containerDiv) return;
-        this.setState({containerWidth: this.containerDiv.getBoundingClientRect().width});
+        this.setState({containerWidth: this.containerDiv.getBoundingClientRect().width - this.BORDER_WIDTH_OFFSET});
     };
 
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
@@ -391,6 +393,11 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     onDocumentLoad = ({ numPages }: PDFDocumentProxy) => {
         this.setState({numPages});
+    };
+
+    onPageLoad = (page: pdfjs.PDFPageProxy) => {
+        this.removeTextLayerOffset(page.pageNumber);
+        this.setContainerWidth();
     };
 
     render = () => {
@@ -414,14 +421,14 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                                 <Page
                                     key={`page_${index + 1}`}
                                     pageNumber={index + 1}
-                                    onLoadSuccess={(page) => this.removeTextLayerOffset(page.pageNumber)}
+                                    onLoadSuccess={this.onPageLoad}
                                     width={this.state.containerWidth}
                                 >
                                     <div
                                         style={{
                                             position: "absolute",
-                                            top: 100,
-                                            left: 100,
+                                            top: 0,
+                                            left: 0,
                                             width: 100,
                                             height: 100,
                                             background: "rgba(255, 226, 143, 1)",
