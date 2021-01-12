@@ -46,12 +46,18 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
         };
     };
 
-    getBoundingRect(start: Coords, end: Coords): BoundingRect {
+    getBoundingRect(start: Coords, end: Coords, clip?: BoundingRect): BoundingRect {
+        const clipRect = clip ?? {
+            left: Number.MIN_SAFE_INTEGER,
+            top: Number.MIN_SAFE_INTEGER,
+            right: Number.MAX_SAFE_INTEGER,
+            bottom: Number.MAX_SAFE_INTEGER,
+        };
         return {
-            left: Math.min(end.x, start.x),
-            top: Math.min(end.y, start.y),
-            right: Math.max(end.x, start.x),
-            bottom: Math.max(end.y, start.y),
+            left: Math.max(Math.min(end.x, start.x), clipRect.left),
+            top: Math.max(Math.min(end.y, start.y), clipRect.top),
+            right: Math.min(Math.max(end.x, start.x), clipRect.right),
+            bottom: Math.min(Math.max(end.y, start.y), clipRect.bottom),
         };
     }
 
@@ -72,7 +78,13 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
         if (!end) return;
         if (!this.state.pageDimensions) return;
 
-        const boundingRect = this.getBoundingRect(areaSelection.start, end);
+        const pageBoundaries = {
+            top: 0,
+            left: 0,
+            right: this.state.pageDimensions.width,
+            bottom: this.state.pageDimensions.height,
+        };
+        const boundingRect = this.getBoundingRect(areaSelection.start, end, pageBoundaries);
         return normalizePosition(
             { boundingRect, rects: [boundingRect], pageNumber: this.props.pageNumber },
             this.state.pageDimensions,
