@@ -235,6 +235,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                         )
                     }
                 </Document>
+                {this.props.children}
             </div>
         );
     };
