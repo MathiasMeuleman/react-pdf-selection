@@ -62,10 +62,23 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         numPages: 0,
     };
 
-    resetSelections = () => {
+    clearTextSelection = () => {
+        getWindow(this.containerDiv).getSelection()?.removeAllRanges();
         this.props.onTextSelection?.();
+    };
+
+    clearAreaSelection = () => {
+        this.setState({ areaSelectionActivePage: undefined, textSelectionEnabled: true });
         this.props.onAreaSelection?.();
-        this.setState({ textSelectionEnabled: true, areaSelectionActivePage: undefined });
+    };
+
+    resetSelections = () => {
+        this.clearTextSelection();
+        this.clearAreaSelection();
+    };
+
+    onSelectionStart = () => {
+        this.clearAreaSelection();
     };
 
     onSelectionChange = () => {
@@ -104,6 +117,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     componentDidMount = () => {
         this.computeSelectionMap();
         document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("selectstart", this.onSelectionStart);
         document.addEventListener("selectionchange", this.onSelectionChange);
         document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
 
@@ -118,6 +132,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     componentWillUnmount = () => {
         document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("selectstart", this.onSelectionStart);
         document.removeEventListener("selectionchange", this.onSelectionChange);
         document.defaultView?.removeEventListener("resize", this.debouncedSetContainerWidth);
     };
@@ -147,6 +162,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
 
     onAreaSelectionStart = (pageNumber: number) => {
+        this.clearTextSelection();
         this.setState({ textSelectionEnabled: false, areaSelectionActivePage: pageNumber });
     };
 
