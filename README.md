@@ -90,8 +90,8 @@ Property | Type | Required
 :---|:---|:---
 left | number | yes
 top | number | yes
-width | number | yes
-height | number | yes
+right | number | yes
+bottom | number | yes
 
 ### Prior art
 
