@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { NormalizedSelection, PdfLoader, PdfViewer, SelectionTooltip } from "react-pdf-selection";
+import { NormalizedSelection, PdfViewer } from "react-pdf-selection";
 import { pdfs } from "./example-pdfs";
+import { SelectionTooltip } from "./SelectionTooltip";
 
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
@@ -22,21 +23,17 @@ const App = () => {
                     Sidebar
                 </div>
                 <div style={{width: "66.6666%"}}>
-                    <PdfLoader url={pdfs[pdfIdx].url} beforeLoad={<h1>Loading...</h1>}>
-                        {(pdfDocument) => (
-                            <PdfViewer
-                                pdfDocument={pdfDocument}
-                                selections={pdfs[pdfIdx].selections}
-                                enableAreaSelection={(event) => event.altKey}
-                                onTextSelection={setAndLogSelection}
-                                onAreaSelection={setAndLogSelection}
-                            >
-                                <div className="pdfViewer__highlight-tip-container">
-                                    {selection && <SelectionTooltip selection={selection} />}
-                                </div>
-                            </PdfViewer>
-                        )}
-                    </PdfLoader>
+                        <PdfViewer
+                            url={pdfs[pdfIdx].url}
+                            selections={pdfs[pdfIdx].selections}
+                            enableAreaSelection={(event) => event.altKey}
+                            onTextSelection={setAndLogSelection}
+                            onAreaSelection={setAndLogSelection}
+                        >
+                            <div className="pdfViewer__highlight-tip-container">
+                                {selection && <SelectionTooltip selection={selection} />}
+                            </div>
+                        </PdfViewer>
                     <div
                         style={{
                             position: "absolute",

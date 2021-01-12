@@ -1,5 +1,5 @@
 import React from "react";
-import { NormalizedSelection } from "./PdfViewer";
+import {NormalizedSelection} from "react-pdf-selection";
 
 export const SelectionTooltip = ({ selection }: { selection: NormalizedSelection }) => (
     <div
