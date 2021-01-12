@@ -1,10 +1,11 @@
 import React from "react";
-import { Position } from "../types";
+import {NormalizedPosition} from "../types";
+import {absoluteBoundingRectToStyle} from "../utils";
 
-export const NewAreaSelection = ({ position }: { position: Position }) => (
+export const NewAreaSelection = ({ position }: { position: NormalizedPosition }) => (
     <div
         style={{
-            ...position.boundingRect,
+            ...absoluteBoundingRectToStyle(position.absolute.boundingRect),
             position: "absolute",
             border: "1px dashed #333",
             background: "rgba(252, 232, 151, 1)",

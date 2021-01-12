@@ -34,3 +34,10 @@ export const boundingRectToStyle = (rect: BoundingRect, { width, height }: Dimen
     width: (rect.right - rect.left) * width / 100,
     height: (rect.bottom - rect.top) * height / 100,
 });
+
+export const absoluteBoundingRectToStyle = (rect: BoundingRect) => ({
+    left: rect.left,
+    top: rect.top,
+    width: rect.right - rect.left,
+    height: rect.bottom - rect.top,
+});
