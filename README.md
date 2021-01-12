@@ -19,7 +19,7 @@ and options to listen for new selections made by users. Default components, as w
 
 ### Examples
 
-An online example can be found at https://MathiasMeuleman.github.io/react-pdf-selection
+An online example can be found at https://mathiasmeuleman.github.io/react-pdf-selection
 
 To run the example locally however, from the `packages/examples` folder you can run:
 
@@ -30,7 +30,7 @@ npm start
 
 ### API Reference
 
-#### `PdfLoader` props
+#### `PdfLoader`
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
@@ -40,7 +40,7 @@ errorMessage | `ReactElement` | no |
 children | `(pdfDocument: PDFDocumentProxy) => void` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package
 onError | `(error: Error) => void` | no |
 
-#### `PdfViewer` props
+#### `PdfViewer`
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
@@ -80,7 +80,6 @@ pageOffset | number | yes | The total offset in height, caused by all the `pageN
 Property | Type | Required | Notes
 :---|:---|:---|:---
 absolute | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The absolute bounding rectangle of the entire selection, with coordinates corresponding to the current page dimensions.
-relative | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The relative bounding rectangle of the selection, with coordinates relative to the current page.
 normalized | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The normalized bounding rectangle of the entire selection, with coordinates normalized to the current page dimensions.
 pageNumber | number | yes | 1-based page number on which the selection is made.
 pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
