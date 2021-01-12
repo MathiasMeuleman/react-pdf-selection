@@ -62,55 +62,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         numPages: 0,
     };
 
-    clearTextSelection = () => {
-        getWindow(this.containerDiv).getSelection()?.removeAllRanges();
-        this.props.onTextSelection?.();
-    };
-
-    clearAreaSelection = () => {
-        this.setState({ areaSelectionActivePage: undefined, textSelectionEnabled: true });
-        this.props.onAreaSelection?.();
-    };
-
-    resetSelections = () => {
-        this.clearTextSelection();
-        this.clearAreaSelection();
-    };
-
-    onSelectionStart = () => {
-        this.clearAreaSelection();
-    };
-
-    onSelectionChange = () => {
-        const selection = getWindow(this.containerDiv).getSelection();
-        if (!selection || selection.isCollapsed) return;
-
-        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined;
-        if (!range) return;
-
-        const page = getPageFromRange(range);
-        if (!page) return;
-        const pageDimension = {width: page.node.clientWidth, height: page.node.clientHeight};
-
-        const rects = getClientRects(range, page.node);
-        if (rects.length === 0) return;
-
-        const boundingRect = getBoundingRect(rects);
-        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, pageDimension);
-        const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
-
-        this.props.onTextSelection?.({ position, text });
-    };
-
-    onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "Escape")
-            this.resetSelections();
-    };
-
-    onMouseDown = () => {
-        this.resetSelections();
-    };
-
     /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
     BORDER_WIDTH_OFFSET = 18;
 
@@ -118,11 +69,15 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     selectionMap: { [key: number]: SelectionType[] } | undefined;
 
+    /**
+     * Lifecycle function
+     */
+
     componentDidMount = () => {
         this.computeSelectionMap();
         document.addEventListener("keydown", this.onKeyDown);
-        document.addEventListener("selectstart", this.onSelectionStart);
-        document.addEventListener("selectionchange", this.onSelectionChange);
+        document.addEventListener("selectstart", this.onTextSelectionStart);
+        document.addEventListener("selectionchange", this.onTextSelectionChange);
         document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
 
         // debug
@@ -136,9 +91,18 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     componentWillUnmount = () => {
         document.removeEventListener("keydown", this.onKeyDown);
-        document.removeEventListener("selectstart", this.onSelectionStart);
-        document.removeEventListener("selectionchange", this.onSelectionChange);
+        document.removeEventListener("selectstart", this.onTextSelectionStart);
+        document.removeEventListener("selectionchange", this.onTextSelectionChange);
         document.defaultView?.removeEventListener("resize", this.debouncedSetContainerWidth);
+    };
+
+    /**
+     * Helpers
+     */
+
+    resetSelections = () => {
+        this.clearTextSelection();
+        this.clearAreaSelection();
     };
 
     computeSelectionMap = () => {
@@ -165,6 +129,49 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
 
+    /**
+     * Text selection handlers
+     */
+
+    clearTextSelection = () => {
+        getWindow(this.containerDiv).getSelection()?.removeAllRanges();
+        this.props.onTextSelection?.();
+    };
+
+    onTextSelectionStart = () => {
+        this.clearAreaSelection();
+    };
+
+    onTextSelectionChange = () => {
+        const selection = getWindow(this.containerDiv).getSelection();
+        if (!selection || selection.isCollapsed) return;
+
+        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined;
+        if (!range) return;
+
+        const page = getPageFromRange(range);
+        if (!page) return;
+        const pageDimension = {width: page.node.clientWidth, height: page.node.clientHeight};
+
+        const rects = getClientRects(range, page.node);
+        if (rects.length === 0) return;
+
+        const boundingRect = getBoundingRect(rects);
+        const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, pageDimension);
+        const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
+
+        this.props.onTextSelection?.({ position, text });
+    };
+
+    /**
+     * Area selection handlers
+     */
+
+    clearAreaSelection = () => {
+        this.setState({ areaSelectionActivePage: undefined, textSelectionEnabled: true });
+        this.props.onAreaSelection?.();
+    };
+
     onAreaSelectionStart = (pageNumber: number) => {
         this.clearTextSelection();
         this.setState({ textSelectionEnabled: false, areaSelectionActivePage: pageNumber });
@@ -173,6 +180,19 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     onAreaSelectionEnd = (selection: NormalizedAreaSelection) => {
         this.setState({ textSelectionEnabled: true });
         this.props.onAreaSelection?.(selection);
+    };
+
+    /**
+     * Event handlers
+     */
+
+    onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape")
+            this.resetSelections();
+    };
+
+    onMouseDown = () => {
+        this.resetSelections();
     };
 
     onDocumentLoad = ({ numPages }: pdfjs.PDFDocumentProxy) => {
