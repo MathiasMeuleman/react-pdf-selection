@@ -11,8 +11,9 @@ interface PdfPageProps {
     pageNumber: number;
     width?: number;
     selections?: SelectionType[];
+    areaSelectionActive: boolean;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
-    onAreaSelectionStart?: () => void;
+    onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
 }
 
@@ -55,7 +56,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
     }
 
     onAreaSelectStart = (event: React.MouseEvent) => {
-        this.props.onAreaSelectionStart?.();
+        this.props.onAreaSelectionStart?.(this.props.pageNumber);
         const start = this.containerCoords(event.pageX, event.pageY);
         if (!start) return;
 
@@ -165,7 +166,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
                     onRenderSuccess={this.onPageRender}
                 >
                     {this.state.renderComplete && this.renderSelections()}
-                    {this.state.areaSelection?.position && (
+                    {this.props.areaSelectionActive && this.state.areaSelection?.position && (
                         <NewAreaSelection
                             position={this.state.areaSelection.position}
                         />

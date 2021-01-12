@@ -3,7 +3,7 @@ import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import {debounce} from "../../dist/utils/debounce";
 import "../style/react_pdf_viewer.css";
-import {NormalizedPosition, Position, Viewer as ViewerType} from "../types";
+import {NormalizedPosition, Position} from "../types";
 import {getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
 import {normalizePosition} from "../utils/coordinates";
 import {PdfPage} from "./PdfPage";
@@ -49,15 +49,8 @@ interface PdfViewerProps {
 
 interface PdfViewerState {
     containerWidth?: number;
-    containerNode?: HTMLDivElement;
-    viewer?: ViewerType;
     textSelectionEnabled: boolean;
-    areaSelection?: {
-        originTarget?: HTMLElement;
-        start?: Coords;
-        position?: NormalizedPosition;
-        locked?: boolean;
-    };
+    areaSelectionActivePage?: number;
     numPages: number;
 }
 
@@ -72,11 +65,11 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     resetSelections = () => {
         this.props.onTextSelection?.();
         this.props.onAreaSelection?.();
-        this.setState({ areaSelection: undefined, textSelectionEnabled: true });
+        this.setState({ textSelectionEnabled: true, areaSelectionActivePage: undefined });
     };
 
     onSelectionChange = () => {
-        const selection = getWindow(this.state.containerNode).getSelection();
+        const selection = getWindow(this.containerDiv).getSelection();
         if (!selection || selection.isCollapsed) return;
 
         const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined;
@@ -97,7 +90,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     onKeyDown = (event: KeyboardEvent) => {
-        if (event.code === "Escape")
+        if (event.key === "Escape")
             this.resetSelections();
     };
 
@@ -153,8 +146,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
 
-    onAreaSelectionStart = () => {
-        this.setState({ textSelectionEnabled: false });
+    onAreaSelectionStart = (pageNumber: number) => {
+        this.setState({ textSelectionEnabled: false, areaSelectionActivePage: pageNumber });
     };
 
     onAreaSelectionEnd = (selection: NormalizedAreaSelection) => {
@@ -168,6 +161,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     render = () => {
+        const { areaSelectionActivePage, containerWidth, numPages } = this.state;
         return (
             <div
                 ref={(ref) => this.containerDiv = ref}
@@ -184,13 +178,14 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 >
                     {
                         Array.from(
-                            new Array(this.state.numPages),
+                            new Array(5),
                             (el, index) => (
                                 <PdfPage
                                     key={index}
                                     pageNumber={index + 1}
-                                    width={this.state.containerWidth}
+                                    width={containerWidth}
                                     selections={this.selectionMap?.[index + 1]}
+                                    areaSelectionActive={areaSelectionActivePage ? areaSelectionActivePage === index + 1 : false}
                                     enableAreaSelection={this.props.enableAreaSelection}
                                     onAreaSelectionStart={this.onAreaSelectionStart}
                                     onAreaSelectionEnd={this.onAreaSelectionEnd}
