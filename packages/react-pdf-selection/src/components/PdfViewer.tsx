@@ -107,6 +107,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             this.resetSelections();
     };
 
+    onMouseDown = () => {
+        this.resetSelections();
+    };
+
     /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
     BORDER_WIDTH_OFFSET = 18;
 
@@ -186,6 +190,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                     width: "100%",
                 }}
                 onContextMenu={(e) => e.preventDefault()}
+                onPointerDown={this.onMouseDown}
             >
                 <Document
                     file={this.props.url}
