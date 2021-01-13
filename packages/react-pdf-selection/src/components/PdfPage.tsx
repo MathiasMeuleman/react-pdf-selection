@@ -60,6 +60,13 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         this._mounted = true;
     };
 
+    componentDidUpdate = () => {
+        this.data = {
+            ...this.props.data,
+            ...this.getPageData(this.props.index),
+        };
+    };
+
     componentWillUnmount = () => {
         this._mounted = false;
     };
