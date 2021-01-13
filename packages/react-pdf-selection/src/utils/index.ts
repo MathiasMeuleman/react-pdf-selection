@@ -2,6 +2,7 @@ import { absoluteBoundingRectToStyle, boundingRectToStyle, Dimensions } from "./
 import { getDocument, findOrCreateContainerLayer, getPageFromElement, getPageFromRange, getWindow } from "./dom";
 import { getAreaAsPNG } from "./image";
 import { getBoundingRect, getClientRects } from "./rects";
+import { generateUuid } from "./uuid";
 
 export {
     Dimensions,
@@ -15,4 +16,5 @@ export {
     getWindow,
     getPageFromRange,
     getPageFromElement,
+    generateUuid,
 };

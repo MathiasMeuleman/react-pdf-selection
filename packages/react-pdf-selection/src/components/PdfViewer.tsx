@@ -5,7 +5,7 @@ import {ListOnItemsRenderedProps, VariableSizeList} from "react-window";
 import {debounce} from "../../dist/utils/debounce";
 import "../style/react_pdf_viewer.css";
 import {NormalizedPosition, Position} from "../types";
-import {getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
+import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
 import {normalizePosition} from "../utils/coordinates";
 import {PdfPage, PdfPageData} from "./PdfPage";
 
@@ -49,6 +49,7 @@ interface PdfViewerProps {
 }
 
 interface PdfViewerState {
+    documentUuid?: string;
     containerHeight: number;
     textSelectionEnabled: boolean;
     areaSelectionActivePage?: number;
@@ -104,6 +105,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     componentDidUpdate = (prevProps: PdfViewerProps) => {
         if (this.props.selections !== prevProps.selections)
             this.computeSelectionMap();
+        if (this.props.url !== prevProps.url)
+            this.setState({ documentUuid: undefined });
     };
 
     componentWillUnmount = () => {
@@ -195,6 +198,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     debouncedHandleResize = debounce(this.handleResize, 500);
 
+    getItemKey = (index: number) => {
+        return `doc_${this.state.documentUuid}_page_${index}`;
+    };
+
     /**
      * Text selection handlers
      */
@@ -263,7 +270,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     onDocumentLoad = (pdf: pdfjs.PDFDocumentProxy) => {
         this.computePageDimensions(pdf);
-        this.setState({ numPages: pdf.numPages });
+        this.setState({ numPages: pdf.numPages, documentUuid: generateUuid() });
     };
 
     updateCurrentVisiblePage = ({ visibleStopIndex }: ListOnItemsRenderedProps) => {
@@ -288,12 +295,13 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                     onLoadSuccess={this.onDocumentLoad}
                     options={{removePageBorders: false}}
                 >
-                    {this.containerDiv && this.state.pageDimensions && (
+                    {this.containerDiv && this.state.documentUuid && this.state.pageDimensions && (
                         <VariableSizeList
                             ref={(ref) => this.listDiv = ref}
                             height={containerHeight}
                             width={"100%"}
                             itemCount={numPages}
+                            itemKey={this.getItemKey}
                             itemSize={this.getPageHeight}
                             itemData={{
                                 pageRefs: this.pageRefs,
