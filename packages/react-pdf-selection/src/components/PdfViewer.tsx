@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import {ListOnItemsRenderedProps, VariableSizeList} from "react-window";
 import {debounce} from "../../dist/utils/debounce";
 import "../style/react_pdf_viewer.css";
 import {NormalizedPosition, Position} from "../types";
@@ -48,37 +49,55 @@ interface PdfViewerProps {
 }
 
 interface PdfViewerState {
-    containerWidth?: number;
+    containerHeight: number;
+    containerWidth: number;
     textSelectionEnabled: boolean;
     areaSelectionActivePage?: number;
+    currentPage: number;
     numPages: number;
+    pageDimensions?: Map<number, {width: number, height: number}>;
+    responsiveScale: number;
 }
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
+
     state: PdfViewerState = {
+        containerHeight: 0,
+        containerWidth: 0,
         textSelectionEnabled: true,
+        currentPage: 1,
         numPages: 0,
+        responsiveScale: 1,
     };
 
     /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
     BORDER_WIDTH_OFFSET = 18;
 
+    /** Scale value for PDF size */
+    scale = 1.2;
+
     containerDiv: HTMLElement | null = null;
+    listDiv: VariableSizeList | null = null;
+    pageRefs: Map<number, HTMLDivElement | null> = new Map();
 
     selectionMap: { [key: number]: SelectionType[] } | undefined;
+
+    _mounted: boolean = false;
 
     /**
      * Lifecycle function
      */
 
     componentDidMount = () => {
+        this._mounted = true;
         this.computeSelectionMap();
+        this.handleResize();
         document.addEventListener("keydown", this.onKeyDown);
         document.addEventListener("selectstart", this.onTextSelectionStart);
         document.addEventListener("selectionchange", this.onTextSelectionChange);
-        document.defaultView?.addEventListener("resize", this.debouncedSetContainerWidth);
+        document.defaultView?.addEventListener("resize", this.debouncedHandleResize);
 
         // debug
         (window as any).PdfViewer = this;
@@ -90,10 +109,11 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     componentWillUnmount = () => {
+        this._mounted = false;
         document.removeEventListener("keydown", this.onKeyDown);
         document.removeEventListener("selectstart", this.onTextSelectionStart);
         document.removeEventListener("selectionchange", this.onTextSelectionChange);
-        document.defaultView?.removeEventListener("resize", this.debouncedSetContainerWidth);
+        document.defaultView?.removeEventListener("resize", this.debouncedHandleResize);
     };
 
     /**
@@ -120,14 +140,63 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         this.selectionMap = selectionMap;
     };
 
-    setContainerWidth = () => {
-        if (!this.containerDiv) return;
-        this.setState({
-            containerWidth: this.containerDiv.getBoundingClientRect().width - this.BORDER_WIDTH_OFFSET,
+    computePageDimensions = (pdf: pdfjs.PDFDocumentProxy) => {
+        const promises = Array.from({ length: pdf.numPages }).map((x, i) => i + 1).map((pageNumber) => {
+            return new Promise<pdfjs.PDFPageProxy>((resolve, reject) => {
+                pdf.getPage(pageNumber).then(resolve, reject);
+            });
         });
+
+        Promise.all(promises).then((pages) => {
+            if (!this._mounted)
+                return;
+            const pageDimensions = new Map<number, {width: number, height: number}>();
+
+            for (const page of pages) {
+                const width = page.view[2] * this.scale;
+                const height = page.view[3] * this.scale;
+                pageDimensions.set(page.pageNumber, {width, height});
+            }
+
+            this.setState({ pageDimensions });
+        })
     };
 
-    debouncedSetContainerWidth = debounce(this.setContainerWidth, 500);
+    getPageHeight = (index: number) => {
+        const { pageDimensions, responsiveScale } = this.state;
+        const pageDimension = pageDimensions?.get(index + 1);
+        if (pageDimension && responsiveScale)
+            return (pageDimension.height / responsiveScale) + this.BORDER_WIDTH_OFFSET;
+        return 768; // Initial page height
+    };
+
+    clearPageHeightCache = () => {
+        console.log("Clearing");
+        this.listDiv?.resetAfterIndex(0);
+    };
+
+    computeResponsiveScale = (pageNumber: number) => {
+        const node = this.pageRefs.get(pageNumber);
+        const pageDimension = this.state.pageDimensions?.get(pageNumber);
+        if (!node || !pageDimension) return;
+
+        return pageDimension.height / node.clientHeight;
+    };
+
+    handleResize = () => {
+        const { currentPage, responsiveScale } = this.state;
+
+        // Recompute the responsive scale factor on window resize
+        const newResponsiveScale = this.computeResponsiveScale(currentPage);
+
+        if (newResponsiveScale && newResponsiveScale !== responsiveScale) {
+            this.setState({ responsiveScale: newResponsiveScale }, () => this.clearPageHeightCache());
+        }
+        if (this.containerDiv)
+            this.setState({ containerHeight: this.containerDiv.clientHeight, containerWidth: this.containerDiv.clientWidth });
+    };
+
+    debouncedHandleResize = debounce(this.handleResize, 500);
 
     /**
      * Text selection handlers
@@ -195,19 +264,24 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         this.resetSelections();
     };
 
-    onDocumentLoad = ({ numPages }: pdfjs.PDFDocumentProxy) => {
-        this.setContainerWidth();
-        this.setState({numPages});
+    onDocumentLoad = (pdf: pdfjs.PDFDocumentProxy) => {
+        this.computePageDimensions(pdf);
+        this.setState({ numPages: pdf.numPages });
+    };
+
+    updateCurrentVisiblePage = ({ visibleStopIndex }: ListOnItemsRenderedProps) => {
+        this.setState({ currentPage: visibleStopIndex + 1 });
     };
 
     render = () => {
-        const { areaSelectionActivePage, containerWidth, numPages } = this.state;
+        const { areaSelectionActivePage, containerHeight, containerWidth, numPages } = this.state;
         return (
             <div
                 ref={(ref) => this.containerDiv = ref}
                 style={{
                     position: "relative",
                     width: "100%",
+                    height: "100%",
                 }}
                 onContextMenu={(e) => e.preventDefault()}
                 onPointerDown={this.onMouseDown}
@@ -217,23 +291,35 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                     onLoadSuccess={this.onDocumentLoad}
                     options={{removePageBorders: false}}
                 >
-                    {
-                        Array.from(
-                            new Array(5),
-                            (el, index) => (
-                                <PdfPage
-                                    key={index}
-                                    pageNumber={index + 1}
-                                    width={containerWidth}
-                                    selections={this.selectionMap?.[index + 1]}
-                                    areaSelectionActive={areaSelectionActivePage ? areaSelectionActivePage === index + 1 : false}
-                                    enableAreaSelection={this.props.enableAreaSelection}
-                                    onAreaSelectionStart={this.onAreaSelectionStart}
-                                    onAreaSelectionEnd={this.onAreaSelectionEnd}
-                                />
-                            ),
-                        )
-                    }
+                    {this.containerDiv && this.state.pageDimensions && (
+                        <VariableSizeList
+                            ref={(ref) => this.listDiv = ref}
+                            height={containerHeight}
+                            width={containerWidth}
+                            itemCount={numPages}
+                            itemSize={this.getPageHeight}
+                            overscanCount={2}
+                            onItemsRendered={this.updateCurrentVisiblePage}
+                        >
+                            {({ index, style }) => {
+                                const pageDimensions = this.state.pageDimensions!.get(index + 1);
+                                return (
+                                    <PdfPage
+                                        innerRef={(ref: HTMLDivElement | null) => this.pageRefs.set(index + 1, ref)}
+                                        key={index}
+                                        style={style}
+                                        pageDimensions={pageDimensions}
+                                        pageNumber={index + 1}
+                                        selections={this.selectionMap?.[index + 1]}
+                                        areaSelectionActive={areaSelectionActivePage ? areaSelectionActivePage === index + 1 : false}
+                                        enableAreaSelection={this.props.enableAreaSelection}
+                                        onAreaSelectionStart={this.onAreaSelectionStart}
+                                        onAreaSelectionEnd={this.onAreaSelectionEnd}
+                                    />
+                                );
+                            }}
+                        </VariableSizeList>
+                    )}
                 </Document>
                 {this.props.children}
             </div>
