@@ -7,7 +7,11 @@
     "format:check": "prettier --check packages/**/*.{ts,tsx}"
   },
   "devDependencies": {
+    "@types/react-window": "^1.8.2",
     "concurrently": "^5.0.2",
     "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "react-window": "^1.8.6"
   }
 }
