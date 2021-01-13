@@ -7,7 +7,7 @@ import "../style/react_pdf_viewer.css";
 import {NormalizedPosition, Position} from "../types";
 import {getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
 import {normalizePosition} from "../utils/coordinates";
-import {PdfPage} from "./PdfPage";
+import {PdfPage, PdfPageData} from "./PdfPage";
 
 export type Coords = {
     x: number;
@@ -50,7 +50,6 @@ interface PdfViewerProps {
 
 interface PdfViewerState {
     containerHeight: number;
-    containerWidth: number;
     textSelectionEnabled: boolean;
     areaSelectionActivePage?: number;
     currentPage: number;
@@ -65,7 +64,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     state: PdfViewerState = {
         containerHeight: 0,
-        containerWidth: 0,
         textSelectionEnabled: true,
         currentPage: 1,
         numPages: 0,
@@ -82,7 +80,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     listDiv: VariableSizeList | null = null;
     pageRefs: Map<number, HTMLDivElement | null> = new Map();
 
-    selectionMap: { [key: number]: SelectionType[] } | undefined;
+    selectionMap: Map<number, SelectionType[]> | undefined;
 
     _mounted: boolean = false;
 
@@ -103,8 +101,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         (window as any).PdfViewer = this;
     };
 
-    componentDidUpdate = (nextProps: PdfViewerProps) => {
-        if (this.props.selections !== nextProps.selections)
+    componentDidUpdate = (prevProps: PdfViewerProps) => {
+        if (this.props.selections !== prevProps.selections)
             this.computeSelectionMap();
     };
 
@@ -130,12 +128,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             this.selectionMap = undefined;
             return;
         }
-        const selectionMap: { [key: number]: SelectionType[] } = {};
+        const selectionMap: Map<number, SelectionType[]> = new Map();
         this.props.selections.forEach((selection) => {
-            selectionMap[selection.position.pageNumber] = [
-                ...selectionMap[selection.position.pageNumber] ?? [],
+            selectionMap.set(selection.position.pageNumber, [
+                ...selectionMap.get(selection.position.pageNumber) ?? [],
                 selection,
-            ];
+            ]);
         });
         this.selectionMap = selectionMap;
     };
@@ -158,7 +156,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 pageDimensions.set(page.pageNumber, {width, height});
             }
 
-            this.setState({ pageDimensions });
+            this.setState({ pageDimensions }, () => this.clearPageHeightCache());
         })
     };
 
@@ -171,7 +169,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     clearPageHeightCache = () => {
-        console.log("Clearing");
         this.listDiv?.resetAfterIndex(0);
     };
 
@@ -193,7 +190,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             this.setState({ responsiveScale: newResponsiveScale }, () => this.clearPageHeightCache());
         }
         if (this.containerDiv)
-            this.setState({ containerHeight: this.containerDiv.clientHeight, containerWidth: this.containerDiv.clientWidth });
+            this.setState({ containerHeight: this.containerDiv.clientHeight });
     };
 
     debouncedHandleResize = debounce(this.handleResize, 500);
@@ -274,7 +271,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     render = () => {
-        const { areaSelectionActivePage, containerHeight, containerWidth, numPages } = this.state;
+        const { containerHeight, numPages } = this.state;
         return (
             <div
                 ref={(ref) => this.containerDiv = ref}
@@ -295,29 +292,22 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                         <VariableSizeList
                             ref={(ref) => this.listDiv = ref}
                             height={containerHeight}
-                            width={containerWidth}
+                            width={"100%"}
                             itemCount={numPages}
                             itemSize={this.getPageHeight}
+                            itemData={{
+                                pageRefs: this.pageRefs,
+                                areaSelectionActivePage: this.state.areaSelectionActivePage,
+                                pageDimensions: this.state.pageDimensions,
+                                selectionMap: this.selectionMap,
+                                enableAreaSelection: this.props.enableAreaSelection,
+                                onAreaSelectionStart: this.onAreaSelectionStart,
+                                onAreaSelectionEnd: this.onAreaSelectionEnd,
+                            } as PdfPageData}
                             overscanCount={2}
                             onItemsRendered={this.updateCurrentVisiblePage}
                         >
-                            {({ index, style }) => {
-                                const pageDimensions = this.state.pageDimensions!.get(index + 1);
-                                return (
-                                    <PdfPage
-                                        innerRef={(ref: HTMLDivElement | null) => this.pageRefs.set(index + 1, ref)}
-                                        key={index}
-                                        style={style}
-                                        pageDimensions={pageDimensions}
-                                        pageNumber={index + 1}
-                                        selections={this.selectionMap?.[index + 1]}
-                                        areaSelectionActive={areaSelectionActivePage ? areaSelectionActivePage === index + 1 : false}
-                                        enableAreaSelection={this.props.enableAreaSelection}
-                                        onAreaSelectionStart={this.onAreaSelectionStart}
-                                        onAreaSelectionEnd={this.onAreaSelectionEnd}
-                                    />
-                                );
-                            }}
+                            {PdfPage}
                         </VariableSizeList>
                     )}
                 </Document>
