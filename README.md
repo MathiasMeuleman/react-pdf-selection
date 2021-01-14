@@ -31,16 +31,6 @@ npm start
 
 ### API Reference
 
-#### `PdfLoader`
-
-Property | Type | Required | Notes
-:---|:---|:---|:---
-url | `string` | yes | If using an external source, make sure the CORS headers are set properly (see [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS))
-beforeLoad | `ReactElement` | yes |
-errorMessage | `ReactElement` | no |
-children | `(pdfDocument: PDFDocumentProxy) => void` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package
-onError | `(error: Error) => void` | no |
-
 #### `PdfViewer`
 
 Property | Type | Required | Notes
@@ -50,16 +40,12 @@ selections | `SelectionType[]` | no | See the `SelectionType` definitions below.
 enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
 onTextSelection | `(selection?: NormalizedTextSelection) => void` | no | Is called with the `NormalizedTextSelection` when a new text selection is made, or with `undefined` when the text selection is cancelled/removed.
 onAreaSelection | `(selection?: NormalizedAreaSelection) => void` | no | Is called with the `NormalizedAreaSelection` when a new area selection is made, or with `undefined` when the area selection is cancelled/removed.
+textSelectionColor | `CSSProperties["color"]` | no | The color for selected text in the rendered PDF document. Defaults to `"blue"`.
+areaSelectionComponent | `ComponentType<AreaSelectionProps>` | no | Override for the default `AreaSelection` component.<sup>1</sup>
+textSelectionComponent | `ComponentType<TextSelectionProps>` | no | Override for the default `TextSelection` component.<sup>1</sup>
+newAreaSelectionComponent | `ComponentType<NewAreaSelectionProps>` | no | Override for the default `NewAreaSelection` component.<sup>1</sup>
 
-#### `SelectionType`
-
-Property | Type | Required | Notes
-:---|:---|:---|:---
-position | `Position` | yes | The position of the selection on the document.
-text | `string` | no | The text contained in the selection. This property is required when the selection is a `TextSelectionType`, and is ignored when the selection is an `AreaSelectionType`.
-image | `string` | no | The Base64 encoded PNG image of an area selection. This property is required when the selection is an `AreaSelectionType`, and is ignored when the selection is a `TextSelectionType`.
-
-#### `NormalizedSelection`
+<sup>1</sup> See the [custom component specification](#custom-component-specification)
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
@@ -93,6 +79,39 @@ left | number | yes
 top | number | yes
 right | number | yes
 bottom | number | yes
+
+### Custom component specification
+
+#### Shared typings
+##### `BoundingRectWithCSSProperties` properties
+- `left`: `CSSProperties["left"]`
+- `top`: `CSSProperties["top"]`
+- `width`: `CSSProperties["width"]`
+- `height`: `CSSProperties["height"]`
+
+##### `PositionWithCSSProperties` properties
+- `pageNumber`: `number`
+- `boundingRect`: `BoundingRectWithCSSProperties`
+- `rects`: `BoundingRectWithCSSProperties[]`
+  
+#### Shared components
+##### AreaSelectionComponent
+Can be provided to override the default `AreaSelection` component. Should be a React class component or function component
+that receives the following props:
+- `areaSelection`: `{image: string; position: PositionWithCSSProperties}`
+
+##### TextSelectionComponent
+Can be provided to override the default `TextSelection` component. Should be a React class component or function component
+that receives the following props:
+- `textSelection`: `{text: string; position: PositionWithCSSProperties}`
+
+##### NewAreaSelectionComponent
+Can be provided to override the default `NewAreaSelection` component. Should be a React class component or function component
+that receives the following props:
+- `boundingRect`: `BoundingRectWithCSSProperties`
+
+New text selections are shown through default text selections. The color of these selections can be customized,
+see the `PdfViewer` props definitions for that.
 
 ### Prior art
 
