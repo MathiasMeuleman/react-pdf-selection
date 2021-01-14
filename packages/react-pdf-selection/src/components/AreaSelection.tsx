@@ -1,11 +1,11 @@
 import React from "react";
 import {AreaSelectionWithCSSProperties} from "../types";
 
-export const AreaSelection = ({
-    areaSelection,
-}: {
+export type AreaSelectionProps = {
     areaSelection: AreaSelectionWithCSSProperties;
-}) => (
+};
+
+export const AreaSelection = ({ areaSelection }: AreaSelectionProps) => (
     <div
         style={{
             ...areaSelection.position.boundingRect,

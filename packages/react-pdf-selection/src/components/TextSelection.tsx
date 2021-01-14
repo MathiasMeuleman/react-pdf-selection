@@ -1,11 +1,11 @@
 import React from "react";
 import {TextSelectionWithCSSProperties} from "../types";
 
-export const TextSelection = ({
-    textSelection,
-}: {
+export type TextSelectionProps = {
     textSelection: TextSelectionWithCSSProperties;
-}) => (
+};
+
+export const TextSelection = ({ textSelection }: TextSelectionProps) => (
     <div>
         {textSelection.position.rects.map((rect, i) => (
             <div

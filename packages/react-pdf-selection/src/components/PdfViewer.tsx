@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, ComponentType, CSSProperties} from "react";
 import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import {ListOnItemsRenderedProps, VariableSizeList} from "react-window";
@@ -7,7 +7,10 @@ import "../style/react_pdf_viewer.css";
 import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
 import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
 import {normalizePosition} from "../utils/coordinates";
+import {AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelectionProps} from "./NewAreaSelection";
 import {PdfPage, PdfPageData} from "./PdfPage";
+import {TextSelectionProps} from "./TextSelection";
 
 interface PdfViewerProps {
     url: string;
@@ -15,6 +18,10 @@ interface PdfViewerProps {
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
+    textSelectionColor?: CSSProperties["color"];
+    textSelectionComponent?: ComponentType<TextSelectionProps>;
+    areaSelectionComponent?: ComponentType<AreaSelectionProps>;
+    newAreaSelectionComponent?: ComponentType<NewAreaSelectionProps>;
 }
 
 interface PdfViewerState {
@@ -254,6 +261,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 onContextMenu={(e) => e.preventDefault()}
                 onPointerDown={this.onMouseDown}
             >
+                <style>
+                    {`
+                        .react-pdf__Page__textContent span::selection {
+                            background-color: ${this.props.textSelectionColor ?? "blue"};
+                    `}
+                </style>
                 <Document
                     file={this.props.url}
                     onLoadSuccess={this.onDocumentLoad}
@@ -276,6 +289,9 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                                     enableAreaSelection: this.props.enableAreaSelection,
                                     onAreaSelectionStart: this.onAreaSelectionStart,
                                     onAreaSelectionEnd: this.onAreaSelectionEnd,
+                                    areaSelectionComponent: this.props.areaSelectionComponent,
+                                    textSelectionComponent: this.props.textSelectionComponent,
+                                    newAreaSelectionComponent: this.props.newAreaSelectionComponent,
                                 } as PdfPageData
                             }
                             overscanCount={2}

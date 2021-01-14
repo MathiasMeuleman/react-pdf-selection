@@ -1,7 +1,11 @@
 import React from "react";
 import {BoundingRectWithCSSProperties} from "../types";
 
-export const NewAreaSelection = ({ boundingRect }: { boundingRect: BoundingRectWithCSSProperties }) => (
+export type NewAreaSelectionProps = {
+    boundingRect: BoundingRectWithCSSProperties;
+};
+
+export const NewAreaSelection = ({ boundingRect }: NewAreaSelectionProps) => (
     <div
         style={{
             ...boundingRect,

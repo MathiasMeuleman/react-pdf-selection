@@ -1,11 +1,12 @@
-import React, {createRef, CSSProperties, PureComponent} from "react";
+import React, {ComponentType, createRef, CSSProperties, PureComponent} from "react";
 import {Page} from "react-pdf";
 import {BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType} from "../index";
 import {Coords, isAreaSelection} from "../types";
 import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
 import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
-import {AreaSelection} from "./AreaSelection";
-import {TextSelection} from "./TextSelection";
+import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelectionProps} from "./NewAreaSelection";
+import {TextSelection, TextSelectionProps} from "./TextSelection";
 
 export interface PdfPageData {
     pageRefs: Map<number, HTMLDivElement | null>;
@@ -15,6 +16,9 @@ export interface PdfPageData {
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
+    textSelectionComponent?: ComponentType<TextSelectionProps>;
+    areaSelectionComponent?: ComponentType<AreaSelectionProps>;
+    newAreaSelectionComponent?: ComponentType<NewAreaSelectionProps>;
 }
 
 interface PdfPageProps {
@@ -174,26 +178,29 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     renderSelections = () => {
-        const { pageDimensions, selections } = this.getPageData();
+        const { pageDimensions, selections, areaSelectionComponent, textSelectionComponent } = this.getPageData();
+        const AreaSelectionComponent = areaSelectionComponent ?? AreaSelection;
+        const TextSelectionComponent = textSelectionComponent ?? TextSelection;
         if (!this.inputRef || !selections) return null;
         const selectionRenders = selections.map((selection, i) => {
             if (!pageDimensions) return null;
             const position = getPositionWithCSSProperties(selection.position, pageDimensions);
             const normalizedSelection = { ...selection, position };
             return isAreaSelection(normalizedSelection) ? (
-                <AreaSelection key={i} areaSelection={normalizedSelection} />
+                <AreaSelectionComponent key={i} areaSelection={normalizedSelection} />
             ) : (
-                <TextSelection key={i} textSelection={normalizedSelection} />
+                <TextSelectionComponent key={i} textSelection={normalizedSelection} />
             );
         });
         return <>{selectionRenders}</>;
     };
 
     render = () => {
-        const { areaSelectionActive, pageDimensions, pageNumber, pageRefs } = this.getPageData();
+        const { areaSelectionActive, pageDimensions, pageNumber, pageRefs, newAreaSelectionComponent } = this.getPageData();
         const { areaSelection, renderComplete } = this.state;
+        const NewAreaSelectionComponent = newAreaSelectionComponent ?? NewAreaSelection;
         const newAreaSelection = areaSelectionActive && areaSelection?.position && (
-            <NewAreaSelection
+            <NewAreaSelectionComponent
                 boundingRect={getAbsoluteBoundingRectWithCSSProperties(areaSelection.position.absolute.boundingRect)}
             />
         );

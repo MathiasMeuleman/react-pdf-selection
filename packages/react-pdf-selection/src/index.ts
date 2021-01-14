@@ -11,6 +11,9 @@ import {
     NormalizedSelection,
     NormalizedTextSelection,
     Position, SelectionType, TextSelectionType,
+    TextSelectionWithCSSProperties,
+    AreaSelectionWithCSSProperties,
+    SelectionWithCSSProperties,
 } from "./types";
 
 export {
@@ -25,4 +28,7 @@ export {
     NormalizedSelection,
     NormalizedAreaSelection,
     NormalizedTextSelection,
+    SelectionWithCSSProperties,
+    AreaSelectionWithCSSProperties,
+    TextSelectionWithCSSProperties,
 };
