@@ -34,3 +34,36 @@ export type PositionWithCSSProperties = {
     boundingRect: BoundingRectWithCSSProperties;
     rects: BoundingRectWithCSSProperties[];
 };
+export type Coords = {
+    x: number;
+    y: number;
+};
+export type TextSelectionType = {
+    text: string;
+    position: Position;
+};
+export type AreaSelectionType = {
+    image: string;
+    position: Position;
+};
+export type SelectionType = TextSelectionType | AreaSelectionType;
+export type NormalizedTextSelection = {
+    text: string;
+    position: NormalizedPosition;
+};
+export type NormalizedAreaSelection = {
+    image: string;
+    position: NormalizedPosition;
+};
+export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelection;
+export type TextSelectionWithCSSProperties = {
+    text: string;
+    position: PositionWithCSSProperties;
+}
+export type AreaSelectionWithCSSProperties = {
+    image: string;
+    position: PositionWithCSSProperties;
+}
+export type SelectionWithCSSProperties = TextSelectionWithCSSProperties | AreaSelectionWithCSSProperties;
+export const isAreaSelection = (selection: SelectionWithCSSProperties): selection is AreaSelectionWithCSSProperties =>
+    "image" in selection;

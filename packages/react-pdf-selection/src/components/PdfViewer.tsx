@@ -1,57 +1,13 @@
-import React, { Component } from "react";
-import { Document, pdfjs } from "react-pdf";
+import React, {Component} from "react";
+import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import { ListOnItemsRenderedProps, VariableSizeList } from "react-window";
-import { debounce } from "../../dist/utils/debounce";
+import {ListOnItemsRenderedProps, VariableSizeList} from "react-window";
+import {debounce} from "../../dist/utils/debounce";
 import "../style/react_pdf_viewer.css";
-import {NormalizedPosition, Position, PositionWithCSSProperties} from "../types";
-import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
-import { normalizePosition } from "../utils/coordinates";
-import { PdfPage, PdfPageData } from "./PdfPage";
-
-export type Coords = {
-    x: number;
-    y: number;
-};
-
-export type TextSelectionType = {
-    text: string;
-    position: Position;
-};
-
-export type AreaSelectionType = {
-    image: string;
-    position: Position;
-};
-
-export type SelectionType = TextSelectionType | AreaSelectionType;
-
-export type NormalizedTextSelection = {
-    text: string;
-    position: NormalizedPosition;
-};
-
-export type NormalizedAreaSelection = {
-    image: string;
-    position: NormalizedPosition;
-};
-
-export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelection;
-
-export type TextSelectionWithCSSProperties = {
-    text: string;
-    position: PositionWithCSSProperties;
-}
-
-export type AreaSelectionWithCSSProperties = {
-    image: string;
-    position: PositionWithCSSProperties;
-}
-
-export type SelectionWithCSSProperties = TextSelectionWithCSSProperties | AreaSelectionWithCSSProperties;
-
-export const isAreaSelection = (selection: SelectionWithCSSProperties): selection is AreaSelectionWithCSSProperties =>
-    "image" in selection;
+import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
+import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
+import {normalizePosition} from "../utils/coordinates";
+import {PdfPage, PdfPageData} from "./PdfPage";
 
 interface PdfViewerProps {
     url: string;

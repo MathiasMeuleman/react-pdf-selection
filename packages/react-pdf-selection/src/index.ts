@@ -1,14 +1,17 @@
 import { NewAreaSelection } from "./components/NewAreaSelection";
 import {
+    PdfViewer,
+
+} from "./components/PdfViewer";
+import {
     AreaSelectionType,
+    BoundingRect,
     NormalizedAreaSelection,
+    NormalizedPosition,
     NormalizedSelection,
     NormalizedTextSelection,
-    PdfViewer,
-    SelectionType,
-    TextSelectionType,
-} from "./components/PdfViewer";
-import { BoundingRect, NormalizedPosition, Position } from "./types";
+    Position, SelectionType, TextSelectionType,
+} from "./types";
 
 export {
     NewAreaSelection,

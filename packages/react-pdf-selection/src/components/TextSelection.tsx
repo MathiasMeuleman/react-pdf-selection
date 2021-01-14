@@ -1,5 +1,5 @@
 import React from "react";
-import {TextSelectionWithCSSProperties} from "./PdfViewer";
+import {TextSelectionWithCSSProperties} from "../types";
 
 export const TextSelection = ({
     textSelection,

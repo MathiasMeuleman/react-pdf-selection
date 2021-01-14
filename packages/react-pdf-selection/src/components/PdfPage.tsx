@@ -1,10 +1,10 @@
 import React, {createRef, CSSProperties, PureComponent} from "react";
 import {Page} from "react-pdf";
 import {BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType} from "../index";
+import {Coords, isAreaSelection} from "../types";
 import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
 import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
 import {AreaSelection} from "./AreaSelection";
-import {Coords, isAreaSelection} from "./PdfViewer";
 import {TextSelection} from "./TextSelection";
 
 export interface PdfPageData {

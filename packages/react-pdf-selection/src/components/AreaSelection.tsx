@@ -1,5 +1,5 @@
 import React from "react";
-import {AreaSelectionWithCSSProperties} from "./PdfViewer";
+import {AreaSelectionWithCSSProperties} from "../types";
 
 export const AreaSelection = ({
     areaSelection,
