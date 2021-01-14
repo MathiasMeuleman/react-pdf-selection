@@ -1,12 +1,12 @@
-import React, {ComponentType, createRef, CSSProperties, PureComponent} from "react";
-import {Page} from "react-pdf";
-import {BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType} from "../index";
-import {Coords, isAreaSelection} from "../types";
-import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
-import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
-import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelectionProps} from "./NewAreaSelection";
-import {TextSelection, TextSelectionProps} from "./TextSelection";
+import React, { ComponentType, createRef, CSSProperties, PureComponent } from "react";
+import { Page } from "react-pdf";
+import { BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType } from "../index";
+import { Coords, isAreaSelection } from "../types";
+import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
+import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
+import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelectionProps } from "./NewAreaSelection";
+import { TextSelection, TextSelectionProps } from "./TextSelection";
 
 export interface PdfPageData {
     pageRefs: Map<number, HTMLDivElement | null>;
@@ -196,7 +196,13 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     render = () => {
-        const { areaSelectionActive, pageDimensions, pageNumber, pageRefs, newAreaSelectionComponent } = this.getPageData();
+        const {
+            areaSelectionActive,
+            pageDimensions,
+            pageNumber,
+            pageRefs,
+            newAreaSelectionComponent,
+        } = this.getPageData();
         const { areaSelection, renderComplete } = this.state;
         const NewAreaSelectionComponent = newAreaSelectionComponent ?? NewAreaSelection;
         const newAreaSelection = areaSelectionActive && areaSelection?.position && (

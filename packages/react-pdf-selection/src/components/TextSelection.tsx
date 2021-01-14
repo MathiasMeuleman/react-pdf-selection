@@ -1,5 +1,5 @@
 import React from "react";
-import {TextSelectionWithCSSProperties} from "../types";
+import { TextSelectionWithCSSProperties } from "../types";
 
 export type TextSelectionProps = {
     textSelection: TextSelectionWithCSSProperties;

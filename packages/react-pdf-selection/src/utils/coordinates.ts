@@ -34,14 +34,20 @@ export const normalizePosition = (position: Position, dimensions: Dimensions): N
     };
 };
 
-export const getBoundingRectWithCSSProperties = (rect: BoundingRect, { width, height }: Dimensions): BoundingRectWithCSSProperties => ({
+export const getBoundingRectWithCSSProperties = (
+    rect: BoundingRect,
+    { width, height }: Dimensions,
+): BoundingRectWithCSSProperties => ({
     left: `${rect.left}%`,
     top: `${rect.top}%`,
     width: ((rect.right - rect.left) * width) / 100,
     height: ((rect.bottom - rect.top) * height) / 100,
 });
 
-export const getPositionWithCSSProperties = (position: Position, dimensions: Dimensions): PositionWithCSSProperties => ({
+export const getPositionWithCSSProperties = (
+    position: Position,
+    dimensions: Dimensions,
+): PositionWithCSSProperties => ({
     ...position,
     boundingRect: getBoundingRectWithCSSProperties(position.boundingRect, dimensions),
     rects: position.rects.map((rect) => getBoundingRectWithCSSProperties(rect, dimensions)),

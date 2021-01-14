@@ -1,4 +1,4 @@
-import {CSSProperties} from "react";
+import { CSSProperties } from "react";
 
 export type BoundingRect = {
     left: number;
@@ -59,11 +59,11 @@ export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelect
 export type TextSelectionWithCSSProperties = {
     text: string;
     position: PositionWithCSSProperties;
-}
+};
 export type AreaSelectionWithCSSProperties = {
     image: string;
     position: PositionWithCSSProperties;
-}
+};
 export type SelectionWithCSSProperties = TextSelectionWithCSSProperties | AreaSelectionWithCSSProperties;
 export const isAreaSelection = (selection: SelectionWithCSSProperties): selection is AreaSelectionWithCSSProperties =>
     "image" in selection;

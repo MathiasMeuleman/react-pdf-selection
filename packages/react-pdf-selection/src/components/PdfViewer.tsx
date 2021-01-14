@@ -1,16 +1,16 @@
-import React, {Component, ComponentType, CSSProperties} from "react";
-import {Document, pdfjs} from "react-pdf";
+import React, { Component, ComponentType, CSSProperties } from "react";
+import { Document, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import {ListOnItemsRenderedProps, VariableSizeList} from "react-window";
-import {debounce} from "../../dist/utils/debounce";
+import { ListOnItemsRenderedProps, VariableSizeList } from "react-window";
+import { debounce } from "../../dist/utils/debounce";
 import "../style/react_pdf_viewer.css";
-import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
-import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
-import {normalizePosition} from "../utils/coordinates";
-import {AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelectionProps} from "./NewAreaSelection";
-import {PdfPage, PdfPageData} from "./PdfPage";
-import {TextSelectionProps} from "./TextSelection";
+import { NormalizedAreaSelection, NormalizedTextSelection, SelectionType } from "../types";
+import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
+import { normalizePosition } from "../utils/coordinates";
+import { AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelectionProps } from "./NewAreaSelection";
+import { PdfPage, PdfPageData } from "./PdfPage";
+import { TextSelectionProps } from "./TextSelection";
 
 interface PdfViewerProps {
     url: string;
@@ -203,7 +203,9 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
         const boundingRect = getBoundingRect(rects);
         const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, pageDimension);
-        const text = Array.from(range.cloneContents().childNodes).map((node) => node.textContent).join(" ");
+        const text = Array.from(range.cloneContents().childNodes)
+            .map((node) => node.textContent)
+            .join(" ");
 
         this.props.onTextSelection?.({ position, text });
     };

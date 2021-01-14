@@ -1,5 +1,5 @@
 import React from "react";
-import {BoundingRectWithCSSProperties} from "../types";
+import { BoundingRectWithCSSProperties } from "../types";
 
 export type NewAreaSelectionProps = {
     boundingRect: BoundingRectWithCSSProperties;

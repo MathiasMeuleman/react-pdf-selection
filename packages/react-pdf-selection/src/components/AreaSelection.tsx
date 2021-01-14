@@ -1,5 +1,5 @@
 import React from "react";
-import {AreaSelectionWithCSSProperties} from "../types";
+import { AreaSelectionWithCSSProperties } from "../types";
 
 export type AreaSelectionProps = {
     areaSelection: AreaSelectionWithCSSProperties;
