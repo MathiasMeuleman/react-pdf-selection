@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.5.0
+Add customizable components for text and area selections, update README
+
 ### 0.4.1
 Update README, add CHANGELOG to repository
 
