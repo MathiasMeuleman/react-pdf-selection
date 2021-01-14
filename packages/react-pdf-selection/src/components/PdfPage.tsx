@@ -40,9 +40,10 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
     inputRef = createRef<HTMLDivElement>();
 
-    getPageData = (index: number) => {
-        const pageNumber = index + 1;
+    getPageData = () => {
+        const pageNumber = this.props.index + 1;
         return {
+            ...this.props.data,
             pageNumber,
             areaSelectionActive: this.props.data.areaSelectionActivePage === pageNumber,
             pageDimensions: this.props.data.pageDimensions?.get(pageNumber),
@@ -50,21 +51,10 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         };
     };
 
-    data = {
-        ...this.props.data,
-        ...this.getPageData(this.props.index),
-    };
     _mounted = false;
 
     componentDidMount = () => {
         this._mounted = true;
-    };
-
-    componentDidUpdate = () => {
-        this.data = {
-            ...this.props.data,
-            ...this.getPageData(this.props.index),
-        };
     };
 
     componentWillUnmount = () => {
@@ -98,7 +88,8 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     }
 
     onAreaSelectStart = (event: React.MouseEvent) => {
-        this.data.onAreaSelectionStart?.(this.data.pageNumber);
+        const { onAreaSelectionStart, pageNumber } = this.getPageData();
+        onAreaSelectionStart?.(pageNumber);
         const start = this.containerCoords(event.pageX, event.pageY);
         if (!start) return;
 
@@ -112,19 +103,17 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked) return;
         const end = this.containerCoords(event.pageX, event.pageY);
         if (!end) return;
-        if (!this.data.pageDimensions) return;
+        const { pageNumber, pageDimensions } = this.getPageData();
+        if (!pageDimensions) return;
 
         const pageBoundaries = {
             top: 0,
             left: 0,
-            right: this.data.pageDimensions.width,
-            bottom: this.data.pageDimensions.height,
+            right: pageDimensions.width,
+            bottom: pageDimensions.height,
         };
         const boundingRect = this.getBoundingRect(areaSelection.start, end, pageBoundaries);
-        return normalizePosition(
-            { boundingRect, rects: [boundingRect], pageNumber: this.data.pageNumber },
-            this.data.pageDimensions,
-        );
+        return normalizePosition({ boundingRect, rects: [boundingRect], pageNumber }, pageDimensions);
     };
 
     onAreaSelectChange = (event: MouseEvent) => {
@@ -136,13 +125,14 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
 
     onAreaSelectEnd = (event: MouseEvent) => {
         const { areaSelection } = this.state;
+        const { onAreaSelectionEnd } = this.getPageData();
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
         // First childNode is the page canvas
         const canvas = this.inputRef.current?.childNodes[0];
         if (!canvas) return;
         const image = getAreaAsPNG(canvas as HTMLCanvasElement, position.absolute.boundingRect);
-        this.data.onAreaSelectionEnd?.({ position, image });
+        onAreaSelectionEnd?.({ position, image });
         this.setState({
             areaSelection: { ...areaSelection, position, locked: true },
         });
@@ -164,7 +154,8 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     onMouseDown = (event: React.PointerEvent<HTMLDivElement>) => {
-        if (!this.data.enableAreaSelection?.(event)) return;
+        const { enableAreaSelection } = this.getPageData();
+        if (!enableAreaSelection?.(event)) return;
         document.addEventListener("pointermove", this.onMouseMove);
         document.addEventListener("pointerup", this.onMouseUp);
         event.preventDefault();
@@ -185,39 +176,41 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     renderSelections = () => {
-        if (!this.inputRef || !this.data.selections) return null;
-        const selectionRenders = this.data.selections.map((selection, i) => {
-            if (!this.data.pageDimensions) return null;
+        const { pageDimensions, selections } = this.getPageData();
+        if (!this.inputRef || !selections) return null;
+        const selectionRenders = selections.map((selection, i) => {
+            if (!pageDimensions) return null;
             const normalizedSelection = {...selection, position: selection.position};
             return isAreaSelection(normalizedSelection) ? (
-                <AreaSelection key={i} areaSelection={normalizedSelection} dimensions={this.data.pageDimensions} />
+                <AreaSelection key={i} areaSelection={normalizedSelection} dimensions={pageDimensions} />
             ) : (
-                <TextSelection key={i} textSelection={normalizedSelection} dimensions={this.data.pageDimensions} />
+                <TextSelection key={i} textSelection={normalizedSelection} dimensions={pageDimensions} />
             );
         });
         return <>{selectionRenders}</>;
     };
 
     render = () => {
+        const { areaSelectionActive, pageDimensions, pageNumber, pageRefs } = this.getPageData();
         return (
             <div style={this.props.style}>
                 <div
-                    ref={(ref) => this.data.pageRefs.set(this.data.pageNumber, ref)}
+                    ref={(ref) => pageRefs.set(pageNumber, ref)}
                     className="pdfViewer__page-container"
-                    style={this.data.pageDimensions ? { width: `${this.data.pageDimensions.width}px` } : {}}
+                    style={pageDimensions ? { width: `${pageDimensions.width}px` } : {}}
                     onPointerDown={this.onMouseDown}
                 >
                     <Page
-                        key={`page_${this.data.pageNumber}`}
-                        pageNumber={this.data.pageNumber}
-                        width={this.data.pageDimensions?.width}
-                        height={this.data.pageDimensions?.height}
+                        key={`page_${pageNumber}`}
+                        pageNumber={pageNumber}
+                        width={pageDimensions?.width}
+                        height={pageDimensions?.height}
                         inputRef={this.inputRef}
                         onLoadSuccess={this.onPageLoad}
                         onRenderSuccess={this.onPageRender}
                     >
                         {this.state.renderComplete && this.renderSelections()}
-                        {this.data.areaSelectionActive && this.state.areaSelection?.position && (
+                        {areaSelectionActive && this.state.areaSelection?.position && (
                             <NewAreaSelection
                                 position={this.state.areaSelection.position}
                             />
