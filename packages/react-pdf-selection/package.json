@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc && npm run copyfiles",
     "copyfiles": "copyfiles --up 1 ./src/style/* ./dist && copyfiles --up 2 ./../../{CHANGELOG.md,LICENSE,README.md} ./dist",
-    "dev": "tsc --watch && npm run copyfiles",
+    "watch": "npm run copyfiles && tsc --watch",
     "clean": "rm -rf dist/",
     "start": "npm run watch",
     "format": "prettier --write src/**/*.{ts,tsx}",
