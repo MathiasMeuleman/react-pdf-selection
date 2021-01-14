@@ -3,6 +3,8 @@ import { NormalizedSelection, PdfViewer } from "react-pdf-selection";
 import { pdfs } from "./example-pdfs";
 import { SelectionTooltip } from "./SelectionTooltip";
 
+import "./App.css";
+
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
     const [selection, setSelection] = useState<NormalizedSelection>();
@@ -14,15 +16,9 @@ const App = () => {
     };
 
     return (
-        <div>
-            <div style={{borderBottom: "1px solid black", height: "200px", width: "100%"}}>
-                Topbar
-            </div>
-            <div style={{display: "flex"}}>
-                <div style={{borderRight: "1px solid black", width: "33.3333%"}}>
-                    Sidebar
-                </div>
-                <div style={{width: "66.6666%"}}>
+        <div className="app-container">
+            <div className="wrapper">
+                <div className="pdf-viewer">
                         <PdfViewer
                             url={pdfs[pdfIdx].url}
                             selections={pdfs[pdfIdx].selections}
@@ -30,9 +26,9 @@ const App = () => {
                             onTextSelection={setAndLogSelection}
                             onAreaSelection={setAndLogSelection}
                         >
-                            <div className="pdfViewer__highlight-tip-container">
-                                {selection && <SelectionTooltip selection={selection} />}
-                            </div>
+                            {/*<div className="pdfViewer__highlight-tip-container">*/}
+                            {/*    {selection && <SelectionTooltip selection={selection} />}*/}
+                            {/*</div>*/}
                         </PdfViewer>
                     <div
                         style={{
