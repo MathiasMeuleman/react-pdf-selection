@@ -1,11 +1,11 @@
-import React, { createRef, CSSProperties, PureComponent } from "react";
-import { Page } from "react-pdf";
-import { BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType } from "../index";
-import { getAreaAsPNG, getWindow } from "../utils";
-import { normalizePosition } from "../utils/coordinates";
-import { AreaSelection } from "./AreaSelection";
-import { Coords, isAreaSelection } from "./PdfViewer";
-import { TextSelection } from "./TextSelection";
+import React, {createRef, CSSProperties, PureComponent} from "react";
+import {Page} from "react-pdf";
+import {BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType} from "../index";
+import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
+import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
+import {AreaSelection} from "./AreaSelection";
+import {Coords, isAreaSelection} from "./PdfViewer";
+import {TextSelection} from "./TextSelection";
 
 export interface PdfPageData {
     pageRefs: Map<number, HTMLDivElement | null>;
@@ -178,11 +178,12 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         if (!this.inputRef || !selections) return null;
         const selectionRenders = selections.map((selection, i) => {
             if (!pageDimensions) return null;
-            const normalizedSelection = { ...selection, position: selection.position };
+            const position = getPositionWithCSSProperties(selection.position, pageDimensions);
+            const normalizedSelection = { ...selection, position };
             return isAreaSelection(normalizedSelection) ? (
-                <AreaSelection key={i} areaSelection={normalizedSelection} dimensions={pageDimensions} />
+                <AreaSelection key={i} areaSelection={normalizedSelection} />
             ) : (
-                <TextSelection key={i} textSelection={normalizedSelection} dimensions={pageDimensions} />
+                <TextSelection key={i} textSelection={normalizedSelection} />
             );
         });
         return <>{selectionRenders}</>;
@@ -190,6 +191,12 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
 
     render = () => {
         const { areaSelectionActive, pageDimensions, pageNumber, pageRefs } = this.getPageData();
+        const { areaSelection, renderComplete } = this.state;
+        const newAreaSelection = areaSelectionActive && areaSelection?.position && (
+            <NewAreaSelection
+                boundingRect={getAbsoluteBoundingRectWithCSSProperties(areaSelection.position.absolute.boundingRect)}
+            />
+        );
         return (
             <div style={this.props.style}>
                 <div
@@ -207,10 +214,8 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
                         onLoadSuccess={this.onPageLoad}
                         onRenderSuccess={this.onPageRender}
                     >
-                        {this.state.renderComplete && this.renderSelections()}
-                        {areaSelectionActive && this.state.areaSelection?.position && (
-                            <NewAreaSelection position={this.state.areaSelection.position} />
-                        )}
+                        {renderComplete && this.renderSelections()}
+                        {newAreaSelection}
                     </Page>
                 </div>
             </div>

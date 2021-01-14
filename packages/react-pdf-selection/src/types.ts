@@ -1,8 +1,17 @@
+import {CSSProperties} from "react";
+
 export type BoundingRect = {
     left: number;
     top: number;
     right: number;
     bottom: number;
+};
+
+export type BoundingRectWithCSSProperties = {
+    top: CSSProperties["top"];
+    left: CSSProperties["left"];
+    width: CSSProperties["width"];
+    height: CSSProperties["height"];
 };
 
 export type SelectionRects = {
@@ -18,4 +27,10 @@ export type NormalizedPosition = {
     absolute: SelectionRects;
     normalized: SelectionRects;
     pageNumber: number;
+};
+
+export type PositionWithCSSProperties = {
+    pageNumber: number;
+    boundingRect: BoundingRectWithCSSProperties;
+    rects: BoundingRectWithCSSProperties[];
 };
