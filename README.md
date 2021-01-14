@@ -2,7 +2,8 @@
 
 This library provides text and rectangular area selections for PDF documents. It is built on top of PDF.js by Mozilla.
 Selection position data is independent of the current viewport, to make it suitable for resizing documents and permanent
-storage.
+storage. PDF pages are virtualized using [`react-window`](https://github.com/bvaughn/react-window) to make rendering of
+large documents more smoothly.
 
 Installation is simply done with `npm` or `yarn`:
 
