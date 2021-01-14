@@ -1,6 +1,6 @@
 import React from "react";
-import {NormalizedPosition} from "../types";
-import {absoluteBoundingRectToStyle} from "../utils";
+import { NormalizedPosition } from "../types";
+import { absoluteBoundingRectToStyle } from "../utils";
 
 export const NewAreaSelection = ({ position }: { position: NormalizedPosition }) => (
     <div

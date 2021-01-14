@@ -1,4 +1,4 @@
-import {BoundingRect} from "../types";
+import { BoundingRect } from "../types";
 
 const sort = (rects: Array<BoundingRect>) =>
     rects.sort((A, B) => {

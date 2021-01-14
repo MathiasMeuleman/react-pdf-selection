@@ -19,17 +19,17 @@ const App = () => {
         <div className="app-container">
             <div className="wrapper">
                 <div className="pdf-viewer">
-                        <PdfViewer
-                            url={pdfs[pdfIdx].url}
-                            selections={pdfs[pdfIdx].selections}
-                            enableAreaSelection={(event) => event.altKey}
-                            onTextSelection={setAndLogSelection}
-                            onAreaSelection={setAndLogSelection}
-                        >
-                            {/*<div className="pdfViewer__highlight-tip-container">*/}
-                            {/*    {selection && <SelectionTooltip selection={selection} />}*/}
-                            {/*</div>*/}
-                        </PdfViewer>
+                    <PdfViewer
+                        url={pdfs[pdfIdx].url}
+                        selections={pdfs[pdfIdx].selections}
+                        enableAreaSelection={(event) => event.altKey}
+                        onTextSelection={setAndLogSelection}
+                        onAreaSelection={setAndLogSelection}
+                    >
+                        {/*<div className="pdfViewer__highlight-tip-container">*/}
+                        {/*    {selection && <SelectionTooltip selection={selection} />}*/}
+                        {/*</div>*/}
+                    </PdfViewer>
                     <div
                         style={{
                             position: "absolute",

@@ -1,8 +1,14 @@
 import React from "react";
-import {boundingRectToStyle, Dimensions} from "../utils";
+import { boundingRectToStyle, Dimensions } from "../utils";
 import { AreaSelectionType } from "./PdfViewer";
 
-export const AreaSelection = ({ areaSelection, dimensions }: { areaSelection: AreaSelectionType; dimensions: Dimensions }) => (
+export const AreaSelection = ({
+    areaSelection,
+    dimensions,
+}: {
+    areaSelection: AreaSelectionType;
+    dimensions: Dimensions;
+}) => (
     <div
         style={{
             ...boundingRectToStyle(areaSelection.position.boundingRect, dimensions),
