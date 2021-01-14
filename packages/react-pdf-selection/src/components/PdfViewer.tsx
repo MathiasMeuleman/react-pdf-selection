@@ -227,7 +227,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
         const boundingRect = getBoundingRect(rects);
         const position = normalizePosition({ boundingRect, rects, pageNumber: page.number }, pageDimension);
-        const text = Array.from(range.cloneContents().childNodes).reduce((a, b) => `${a} ${b.textContent}`, "");
+        const text = Array.from(range.cloneContents().childNodes).map((node) => node.textContent).join(" ");
 
         this.props.onTextSelection?.({ position, text });
     };
