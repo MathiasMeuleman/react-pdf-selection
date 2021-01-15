@@ -9,6 +9,7 @@ const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
     const [selection, setSelection] = useState<NormalizedSelection>();
     const [areaSelectionActive, setAreaSelectionActive] = useState(false);
+    const [scale, setScale] = useState(1.2);
     const toggleUrl = () => setPdfIdx(pdfIdx > 0 ? 0 : 1);
 
     const setAndLogSelection = (highlightTip?: NormalizedSelection) => {
@@ -24,6 +25,7 @@ const App = () => {
                         url={pdfs[pdfIdx].url}
                         selections={pdfs[pdfIdx].selections}
                         enableAreaSelection={() => areaSelectionActive}
+                        scale={scale}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
                     >
@@ -42,6 +44,7 @@ const App = () => {
                 >
                     <button onClick={() => toggleUrl()}>Switch document</button>
                     <button onClick={() => setAreaSelectionActive(!areaSelectionActive)}>{areaSelectionActive ? "On" : "Off"}</button>
+                    <button onClick={() => setScale(1.6)}>Scale</button>
                 </div>
             </div>
         </div>
