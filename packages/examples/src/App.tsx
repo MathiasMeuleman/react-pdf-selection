@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+import React, {ReactElement, useState} from "react";
 import { NormalizedSelection, PdfViewer } from "react-pdf-selection";
 import { pdfs } from "./example-pdfs";
 import { SelectionTooltip } from "./SelectionTooltip";
 
 import "./App.css";
+
+const Viewer = ({ document }: { document: ReactElement }) => {
+    return (
+        <div style={{display: "flex", flexDirection: "row"}}>
+            <div style={{width: "60%"}}>
+                {document}
+            </div>
+            <div style={{width: "40%"}}>
+                Sidebar
+            </div>
+        </div>
+    );
+};
 
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
@@ -29,9 +42,7 @@ const App = () => {
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
                     >
-                        {/*<div className="pdfViewer__highlight-tip-container">*/}
-                        {/*    {selection && <SelectionTooltip selection={selection} />}*/}
-                        {/*</div>*/}
+                        {Viewer}
                     </PdfViewer>
                 </div>
                 <div
