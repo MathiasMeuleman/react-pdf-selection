@@ -1,7 +1,7 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 
 interface PlaceHolderPageProps {
-    pageDimensions?: {width: number; height: number};
+    pageDimensions?: { width: number; height: number };
 }
 
 export class PlaceholderPage extends Component<PlaceHolderPageProps> {
@@ -14,6 +14,6 @@ export class PlaceholderPage extends Component<PlaceHolderPageProps> {
                     height: `${this.props.pageDimensions?.height}px`,
                 }}
             />
-        )
-    }
+        );
+    };
 }

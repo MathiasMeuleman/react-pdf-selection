@@ -1,6 +1,6 @@
-import React, {Component, ComponentType, createRef, CSSProperties, RefObject} from "react";
+import React, { Component, ComponentType, createRef, CSSProperties, RefObject } from "react";
 import isEqual from "react-fast-compare";
-import {Page} from "react-pdf";
+import { Page } from "react-pdf";
 import {
     BoundingRect,
     Coords,
@@ -9,11 +9,11 @@ import {
     NormalizedPosition,
     SelectionType,
 } from "../types";
-import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
-import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
-import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelection, NewAreaSelectionProps} from "./NewAreaSelection";
-import {TextSelection, TextSelectionProps} from "./TextSelection";
+import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
+import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
+import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
+import { TextSelection, TextSelectionProps } from "./TextSelection";
 
 export interface PdfPageProps {
     pageNumber: number;
@@ -58,7 +58,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
 
     shouldComponentUpdate(nextProps: Readonly<PdfPageProps>, nextState: Readonly<PdfPageState>) {
         return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
-    };
+    }
 
     containerCoords = (pageX: number, pageY: number) => {
         if (!this.inputRef.current) return;
@@ -191,12 +191,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
     };
 
     render = () => {
-        const {
-            areaSelectionActive,
-            pageDimensions,
-            pageNumber,
-            newAreaSelectionComponent,
-        } = this.props;
+        const { areaSelectionActive, pageDimensions, pageNumber, newAreaSelectionComponent } = this.props;
         const { areaSelection, renderComplete } = this.state;
         const NewAreaSelectionComponent = newAreaSelectionComponent ?? NewAreaSelection;
         const newAreaSelection = areaSelectionActive && areaSelection?.position && (
