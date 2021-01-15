@@ -14,8 +14,8 @@ import {TextSelectionProps} from "./TextSelection";
 interface PdfViewerProps {
     url: string;
     selections?: Array<SelectionType>;
-    scale?: number;
-    overscanCount?: number;
+    scale: number;
+    overscanCount: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
@@ -30,6 +30,7 @@ interface PdfViewerState {
     textSelectionEnabled: boolean;
     areaSelectionActivePage?: number;
     numPages: number;
+    originalPageDimensions?: Map<number, { width: number; height: number }>;
     pageDimensions?: Map<number, { width: number; height: number }>;
     pageYOffsets?: number[];
     visiblePages?: number[];
@@ -38,6 +39,12 @@ interface PdfViewerState {
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
+
+    static defaultProps = {
+        overscanCount: 1,
+        scale: 1.2,
+    };
+
     state: PdfViewerState = {
         textSelectionEnabled: true,
         numPages: 0,
@@ -45,12 +52,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
     BORDER_WIDTH_OFFSET = 11;
-
-    /** Scale value for PDF size */
-    scale = this.props.scale ?? 1.2;
-
-    /** Amount of pages that should be rendered past the pages in current viewport. */
-    overscanCount = this.props.overscanCount ?? 1;
 
     containerDiv: HTMLElement | null = null;
 
@@ -77,8 +78,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     componentDidUpdate = (prevProps: PdfViewerProps) => {
-        if (this.props.selections !== prevProps.selections) this.computeSelectionMap();
-        if (this.props.url !== prevProps.url) this.setState({ documentUuid: undefined });
+        if (this.props.selections !== prevProps.selections)
+            this.computeSelectionMap();
+        if (this.props.url !== prevProps.url)
+            this.setState({ documentUuid: undefined });
+        if (this.props.scale !== prevProps.scale && this.state.originalPageDimensions)
+            this.computeScaledPageDimensions(this.state.originalPageDimensions);
     };
 
     componentWillUnmount = () => {
@@ -124,20 +129,33 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
         Promise.all(promises).then((pages) => {
             if (!this._mounted) return;
-            const pageDimensions = new Map<number, { width: number; height: number }>();
-            const pageYOffsets: number[] = new Array(pdf.numPages);
+            const originalPageDimensions = new Map<number, { width: number; height: number }>();
 
             for (const page of pages) {
-                const width = page.view[2] * this.scale;
-                const height = page.view[3] * this.scale;
-                pageDimensions.set(page.pageNumber, { width, height });
-                pageYOffsets[page.pageNumber - 1] = (pageYOffsets[page.pageNumber - 2] ?? 0) + height + this.BORDER_WIDTH_OFFSET;
+                const width = page.view[2];
+                const height = page.view[3];
+                originalPageDimensions.set(page.pageNumber, { width, height });
             }
 
-            const visiblePages = this.getVisiblePages(document.documentElement, pageYOffsets);
-
-            this.setState({ pageDimensions, pageYOffsets, visiblePages });
+            this.computeScaledPageDimensions(originalPageDimensions);
+            this.setState({ originalPageDimensions });
         });
+    };
+
+    computeScaledPageDimensions = (originalPageDimensions: Map<number, { width: number; height: number }>) => {
+        const pageDimensions = new Map<number, { width: number; height: number }>();
+        const pageYOffsets: number[] = new Array(originalPageDimensions.size);
+
+        originalPageDimensions.forEach((dimension, pageNumber) => {
+            const width = dimension.width * this.props.scale;
+            const height = dimension.height * this.props.scale;
+            pageDimensions.set(pageNumber, { width, height });
+            pageYOffsets[pageNumber - 1] = (pageYOffsets[pageNumber - 2] ?? 0) + height + this.BORDER_WIDTH_OFFSET;
+        });
+
+        const visiblePages = this.getVisiblePages(document.documentElement, pageYOffsets);
+
+        this.setState({ pageDimensions, pageYOffsets, visiblePages });
     };
 
     getVisiblePages = (scrollElement: HTMLElement, pageYOffsets?: number[]) => {
@@ -149,10 +167,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             ? pageOffsets.length - 1
             : pageOffsets.findIndex((offset) => offset > scrollTop + clientHeight);
         const underScanPages = Array.from(
-            {length: Math.min(this.overscanCount, firstVisiblePageIdx)}
+            {length: Math.min(this.props.overscanCount, firstVisiblePageIdx)}
             ).map((_, i) => firstVisiblePageIdx - i - 1);
         const overScanPages = Array.from(
-            {length: Math.min(this.overscanCount, this.state.numPages - lastVisiblePageIds - 1)}
+            {length: Math.min(this.props.overscanCount, this.state.numPages - lastVisiblePageIds - 1)}
             ).map((_, i) => i + lastVisiblePageIds + 1);
         const visibleCount = lastVisiblePageIds - firstVisiblePageIdx + 1;
         const visiblePages = Array.from({length: visibleCount}).map((x, i) => i + firstVisiblePageIdx);
