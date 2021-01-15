@@ -1,4 +1,5 @@
-import React, {ComponentType, createRef, CSSProperties, PureComponent} from "react";
+import React, {Component, ComponentType, createRef, CSSProperties, RefObject} from "react";
+import isEqual from "react-fast-compare";
 import {Page} from "react-pdf";
 import {
     BoundingRect,
@@ -17,7 +18,7 @@ import {TextSelection, TextSelectionProps} from "./TextSelection";
 export interface PdfPageProps {
     pageNumber: number;
     style: CSSProperties;
-    pageRefs: Map<number, HTMLDivElement | null>;
+    innerRef: RefObject<HTMLDivElement>;
     areaSelectionActive: boolean;
     pageDimensions?: { width: number; height: number };
     selections?: SelectionType[];
@@ -39,7 +40,7 @@ interface PdfPageState {
     };
 }
 
-export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
+export class PdfPage extends Component<PdfPageProps, PdfPageState> {
     state: PdfPageState = {
         renderComplete: false,
     };
@@ -53,6 +54,10 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
 
     componentWillUnmount = () => {
         this._mounted = false;
+    };
+
+    shouldComponentUpdate(nextProps: Readonly<PdfPageProps>, nextState: Readonly<PdfPageState>) {
+        return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
     };
 
     containerCoords = (pageX: number, pageY: number) => {
@@ -190,7 +195,6 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
             areaSelectionActive,
             pageDimensions,
             pageNumber,
-            pageRefs,
             newAreaSelectionComponent,
         } = this.props;
         const { areaSelection, renderComplete } = this.state;
@@ -203,7 +207,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         return (
             <div style={this.props.style}>
                 <div
-                    ref={(ref) => pageRefs.set(pageNumber, ref)}
+                    ref={this.props.innerRef}
                     className="pdfViewer__page-container"
                     style={pageDimensions ? { width: `${pageDimensions.width}px` } : {}}
                     onPointerDown={this.onMouseDown}

@@ -16,6 +16,7 @@
     "version:publish": "node buildfile.js"
   },
   "dependencies": {
+    "react-fast-compare": "^3.2.0",
     "react-pdf": "^5.1.0"
   },
   "peerDependencies": {
@@ -23,7 +24,6 @@
     "react-dom": ">=16.4.0 || >=17.0.0"
   },
   "devDependencies": {
-    "@types/lodash.debounce": "^4.0.6",
     "@types/react": "^16.4.2",
     "@types/react-dom": "^16.4.2",
     "@types/react-pdf": "^5.0.0",

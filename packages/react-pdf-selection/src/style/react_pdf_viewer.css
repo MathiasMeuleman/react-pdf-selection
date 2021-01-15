@@ -11,3 +11,7 @@
 .react-pdf__Document {
     line-height: 1;
 }
+
+.no-select {
+    user-select: none;
+}
