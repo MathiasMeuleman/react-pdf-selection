@@ -149,8 +149,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             ? pageOffsets.length - 1
             : pageOffsets.findIndex((offset) => offset > scrollTop + clientHeight);
         const underScanPages = Array.from(
-            {length: Math.min(this.overscanCount, firstVisiblePageIdx - this.overscanCount + 1)}
-            ).map((_, i) => i + firstVisiblePageIdx - this.overscanCount);
+            {length: Math.min(this.overscanCount, firstVisiblePageIdx)}
+            ).map((_, i) => firstVisiblePageIdx - i - 1);
         const overScanPages = Array.from(
             {length: Math.min(this.overscanCount, this.state.numPages - lastVisiblePageIds - 1)}
             ).map((_, i) => i + lastVisiblePageIds + 1);
