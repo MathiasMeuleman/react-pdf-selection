@@ -1,5 +1,20 @@
 # Changelog
 
+### 0.6.1
+Two fixes:
+- `scale` and `overscanCount` were moved to `props` to make sure the PDF is rerendered correctly,
+the page dimensions are now recalculated on `scale` update.
+- The `underscanPages` calculation was broken, is now not broken.
+
+### 0.6.0
+Replace `react-window` virtualizer with custom implementation. The use of `react-window` imposed
+a few limitations on the `PdfViewer`, such as constantly changing Document heights, very frequent
+CSS updates for relatively expensive page renders, etc. While these properties might work for a
+large range of applications and provide support for lots of different purposes, virtualization in
+the case of this library could be simplified. By using page placeholders with the same dimensions
+as the actual pages, the document dimensions do not update on scroll, allowing more overriding of
+the Document render function (to come in a future update).
+
 ### 0.5.0
 Add customizable components for text and area selections, update README
 
