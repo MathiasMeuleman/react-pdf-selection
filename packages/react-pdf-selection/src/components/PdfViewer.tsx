@@ -1,17 +1,28 @@
-import React, {Component, ComponentType, createRef, CSSProperties, RefObject} from "react";
-import {Document, pdfjs} from "react-pdf";
+import React, {
+    Component,
+    ComponentType,
+    createElement,
+    createRef,
+    CSSProperties,
+    PureComponent,
+    ReactElement,
+    RefObject,
+} from "react";
+import isEqual from "react-fast-compare";
+import { Document, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../style/react_pdf_viewer.css";
-import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
-import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
-import {normalizePosition} from "../utils/coordinates";
-import {AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelectionProps} from "./NewAreaSelection";
-import {PdfPage} from "./PdfPage";
-import {PlaceholderPage} from "./PlaceholderPage";
-import {TextSelectionProps} from "./TextSelection";
+import { NormalizedAreaSelection, NormalizedTextSelection, SelectionType } from "../types";
+import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
+import { normalizePosition } from "../utils/coordinates";
+import { AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelectionProps } from "./NewAreaSelection";
+import { PdfPage } from "./PdfPage";
+import { PlaceholderPage } from "./PlaceholderPage";
+import { TextSelectionProps } from "./TextSelection";
 
 interface PdfViewerProps {
+    children?: ComponentType<{ document: ReactElement }>;
     url: string;
     selections?: Array<SelectionType>;
     scale: number;
@@ -39,7 +50,6 @@ interface PdfViewerState {
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
-
     static defaultProps = {
         overscanCount: 1,
         scale: 1.2,
@@ -78,10 +88,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     componentDidUpdate = (prevProps: PdfViewerProps) => {
-        if (this.props.selections !== prevProps.selections)
-            this.computeSelectionMap();
-        if (this.props.url !== prevProps.url)
-            this.setState({ documentUuid: undefined });
+        if (this.props.selections !== prevProps.selections) this.computeSelectionMap();
+        if (this.props.url !== prevProps.url) this.setState({ documentUuid: undefined });
         if (this.props.scale !== prevProps.scale && this.state.originalPageDimensions)
             this.computeScaledPageDimensions(this.state.originalPageDimensions);
     };
@@ -163,17 +171,18 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         if (!pageOffsets) return [];
         const { scrollTop, clientHeight } = scrollElement;
         const firstVisiblePageIdx = pageOffsets.findIndex((offset) => offset > scrollTop);
-        const lastVisiblePageIds = scrollTop + clientHeight > pageOffsets[pageOffsets.length - 1]
-            ? pageOffsets.length - 1
-            : pageOffsets.findIndex((offset) => offset > scrollTop + clientHeight);
-        const underScanPages = Array.from(
-            {length: Math.min(this.props.overscanCount, firstVisiblePageIdx)}
-            ).map((_, i) => firstVisiblePageIdx - i - 1);
-        const overScanPages = Array.from(
-            {length: Math.min(this.props.overscanCount, this.state.numPages - lastVisiblePageIds - 1)}
-            ).map((_, i) => i + lastVisiblePageIds + 1);
+        const lastVisiblePageIds =
+            scrollTop + clientHeight > pageOffsets[pageOffsets.length - 1]
+                ? pageOffsets.length - 1
+                : pageOffsets.findIndex((offset) => offset > scrollTop + clientHeight);
+        const underScanPages = Array.from({ length: Math.min(this.props.overscanCount, firstVisiblePageIdx) }).map(
+            (_, i) => firstVisiblePageIdx - i - 1,
+        );
+        const overScanPages = Array.from({
+            length: Math.min(this.props.overscanCount, this.state.numPages - lastVisiblePageIds - 1),
+        }).map((_, i) => i + lastVisiblePageIds + 1);
         const visibleCount = lastVisiblePageIds - firstVisiblePageIdx + 1;
-        const visiblePages = Array.from({length: visibleCount}).map((x, i) => i + firstVisiblePageIdx);
+        const visiblePages = Array.from({ length: visibleCount }).map((x, i) => i + firstVisiblePageIdx);
         return [...underScanPages, ...visiblePages, ...overScanPages];
     };
 
@@ -274,7 +283,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         return Array.from(new Array(this.state.numPages), (el, i) => {
             const pageNumber = i + 1;
             if (!this.state.visiblePages || !this.state.visiblePages.includes(i))
-                return <PlaceholderPage key={this.getItemKey(i)} pageDimensions={this.state.pageDimensions?.get(pageNumber)} />;
+                return (
+                    <PlaceholderPage
+                        key={this.getItemKey(i)}
+                        pageDimensions={this.state.pageDimensions?.get(pageNumber)}
+                    />
+                );
             const props = {
                 style: {},
                 pageNumber,
@@ -293,29 +307,32 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         });
     };
 
-    render = () => (
-        <div
-            ref={(ref) => (this.containerDiv = ref)}
-            style={{
-                position: "relative",
-            }}
-            onContextMenu={(e) => e.preventDefault()}
-            onPointerDown={this.onMouseDown}
-        >
-            <style>
-                {`
-                    .react-pdf__Page__textContent span::selection {
-                        background-color: ${this.props.textSelectionColor ?? "blue"};
-                `}
-            </style>
-            <Document
-                className={this.state.textSelectionEnabled ? "" : "no-select"}
-                file={this.props.url}
-                onLoadSuccess={this.onDocumentLoad}
+    render = () => {
+        const document: ReactElement = (
+            <div
+                ref={(ref) => (this.containerDiv = ref)}
+                style={{
+                    position: "relative",
+                }}
+                onContextMenu={(e) => e.preventDefault()}
+                onPointerDown={this.onMouseDown}
             >
-                {this.containerDiv && this.state.documentUuid && this.state.pageDimensions && this.renderPages()}
-            </Document>
-            {this.props.children}
-        </div>
-    );
+                <style>
+                    {`
+                        .react-pdf__Page__textContent span::selection {
+                            background-color: ${this.props.textSelectionColor ?? "blue"};
+                    `}
+                </style>
+                <Document
+                    className={this.state.textSelectionEnabled ? "" : "no-select"}
+                    file={this.props.url}
+                    onLoadSuccess={this.onDocumentLoad}
+                >
+                    {this.containerDiv && this.state.documentUuid && this.state.pageDimensions && this.renderPages()}
+                </Document>
+                {this.props.children}
+            </div>
+        );
+        return this.props.children ? createElement(this.props.children, { document }) : document;
+    };
 }
