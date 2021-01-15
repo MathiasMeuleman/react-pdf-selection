@@ -1,26 +1,14 @@
-html,
-body {
-    height: 100%;
-}
-
-#root {
-    height: 100%;
-}
-
 .app-container {
     display: flex;
     flex-flow: column;
-    height: 100%;
 }
 
 .app-container .wrapper {
     flex: 1 1 auto;
-    /*display: flex;*/
     /*flex-flow: row;*/
 }
 
 .app-container .wrapper .pdf-viewer {
-    height: 100%;
     /*flex-grow: 1;*/
 }
 

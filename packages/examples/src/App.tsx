@@ -8,6 +8,7 @@ import "./App.css";
 const App = () => {
     const [pdfIdx, setPdfIdx] = useState(0);
     const [selection, setSelection] = useState<NormalizedSelection>();
+    const [areaSelectionActive, setAreaSelectionActive] = useState(false);
     const toggleUrl = () => setPdfIdx(pdfIdx > 0 ? 0 : 1);
 
     const setAndLogSelection = (highlightTip?: NormalizedSelection) => {
@@ -22,7 +23,7 @@ const App = () => {
                     <PdfViewer
                         url={pdfs[pdfIdx].url}
                         selections={pdfs[pdfIdx].selections}
-                        enableAreaSelection={(event) => event.altKey}
+                        enableAreaSelection={() => areaSelectionActive}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
                     >
@@ -30,16 +31,17 @@ const App = () => {
                         {/*    {selection && <SelectionTooltip selection={selection} />}*/}
                         {/*</div>*/}
                     </PdfViewer>
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            zIndex: 99,
-                        }}
-                    >
-                        <button onClick={() => toggleUrl()}>Switch document</button>
-                    </div>
+                </div>
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        zIndex: 99,
+                    }}
+                >
+                    <button onClick={() => toggleUrl()}>Switch document</button>
+                    <button onClick={() => setAreaSelectionActive(!areaSelectionActive)}>{areaSelectionActive ? "On" : "Off"}</button>
                 </div>
             </div>
         </div>
