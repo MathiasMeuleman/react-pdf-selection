@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.6.2
+Have `PdfViewer` accept a React component as `children` that will receive the rendered PDF Document.
+Default the PDF Document will be rendered.
+
 ### 0.6.1
 Two fixes:
 - `scale` and `overscanCount` were moved to `props` to make sure the PDF is rerendered correctly,
