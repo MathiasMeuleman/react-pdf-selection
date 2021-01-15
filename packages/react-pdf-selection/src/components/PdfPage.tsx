@@ -1,30 +1,32 @@
-import React, { ComponentType, createRef, CSSProperties, PureComponent } from "react";
-import { Page } from "react-pdf";
-import { BoundingRect, NewAreaSelection, NormalizedAreaSelection, NormalizedPosition, SelectionType } from "../index";
-import { Coords, isAreaSelection } from "../types";
-import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
-import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
-import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
-import { NewAreaSelectionProps } from "./NewAreaSelection";
-import { TextSelection, TextSelectionProps } from "./TextSelection";
+import React, {ComponentType, createRef, CSSProperties, PureComponent} from "react";
+import {Page} from "react-pdf";
+import {
+    BoundingRect,
+    Coords,
+    isAreaSelection,
+    NormalizedAreaSelection,
+    NormalizedPosition,
+    SelectionType,
+} from "../types";
+import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
+import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
+import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelection, NewAreaSelectionProps} from "./NewAreaSelection";
+import {TextSelection, TextSelectionProps} from "./TextSelection";
 
-export interface PdfPageData {
+export interface PdfPageProps {
+    pageNumber: number;
+    style: CSSProperties;
     pageRefs: Map<number, HTMLDivElement | null>;
-    areaSelectionActivePage: number;
-    pageDimensions?: Map<number, { width: number; height: number }>;
-    selectionMap?: Map<number, SelectionType[]>;
+    areaSelectionActive: boolean;
+    pageDimensions?: { width: number; height: number };
+    selections?: SelectionType[];
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
     textSelectionComponent?: ComponentType<TextSelectionProps>;
     areaSelectionComponent?: ComponentType<AreaSelectionProps>;
     newAreaSelectionComponent?: ComponentType<NewAreaSelectionProps>;
-}
-
-interface PdfPageProps {
-    index: number;
-    style: CSSProperties;
-    data: PdfPageData;
 }
 
 interface PdfPageState {
@@ -42,17 +44,6 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         renderComplete: false,
     };
     inputRef = createRef<HTMLDivElement>();
-
-    getPageData = () => {
-        const pageNumber = this.props.index + 1;
-        return {
-            ...this.props.data,
-            pageNumber,
-            areaSelectionActive: this.props.data.areaSelectionActivePage === pageNumber,
-            pageDimensions: this.props.data.pageDimensions?.get(pageNumber),
-            selections: this.props.data.selectionMap?.get(pageNumber),
-        };
-    };
 
     _mounted = false;
 
@@ -91,8 +82,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     }
 
     onAreaSelectStart = (event: React.MouseEvent) => {
-        const { onAreaSelectionStart, pageNumber } = this.getPageData();
-        onAreaSelectionStart?.(pageNumber);
+        this.props.onAreaSelectionStart?.(this.props.pageNumber);
         const start = this.containerCoords(event.pageX, event.pageY);
         if (!start) return;
 
@@ -106,7 +96,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
         if (!areaSelection || !areaSelection.originTarget || !areaSelection.start || areaSelection.locked) return;
         const end = this.containerCoords(event.pageX, event.pageY);
         if (!end) return;
-        const { pageNumber, pageDimensions } = this.getPageData();
+        const { pageNumber, pageDimensions } = this.props;
         if (!pageDimensions) return;
 
         const pageBoundaries = {
@@ -128,7 +118,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
 
     onAreaSelectEnd = (event: MouseEvent) => {
         const { areaSelection } = this.state;
-        const { onAreaSelectionEnd } = this.getPageData();
+        const { onAreaSelectionEnd } = this.props;
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
         // First childNode is the page canvas
@@ -156,7 +146,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     onMouseDown = (event: React.PointerEvent<HTMLDivElement>) => {
-        const { enableAreaSelection } = this.getPageData();
+        const { enableAreaSelection } = this.props;
         if (!enableAreaSelection?.(event)) return;
         document.addEventListener("pointermove", this.onMouseMove);
         document.addEventListener("pointerup", this.onMouseUp);
@@ -178,7 +168,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
     };
 
     renderSelections = () => {
-        const { pageDimensions, selections, areaSelectionComponent, textSelectionComponent } = this.getPageData();
+        const { pageDimensions, selections, areaSelectionComponent, textSelectionComponent } = this.props;
         const AreaSelectionComponent = areaSelectionComponent ?? AreaSelection;
         const TextSelectionComponent = textSelectionComponent ?? TextSelection;
         if (!this.inputRef || !selections) return null;
@@ -202,7 +192,7 @@ export class PdfPage extends PureComponent<PdfPageProps, PdfPageState> {
             pageNumber,
             pageRefs,
             newAreaSelectionComponent,
-        } = this.getPageData();
+        } = this.props;
         const { areaSelection, renderComplete } = this.state;
         const NewAreaSelectionComponent = newAreaSelectionComponent ?? NewAreaSelection;
         const newAreaSelection = areaSelectionActive && areaSelection?.position && (

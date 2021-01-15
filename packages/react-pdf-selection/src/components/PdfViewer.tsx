@@ -9,7 +9,7 @@ import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWin
 import { normalizePosition } from "../utils/coordinates";
 import { AreaSelectionProps } from "./AreaSelection";
 import { NewAreaSelectionProps } from "./NewAreaSelection";
-import { PdfPage, PdfPageData } from "./PdfPage";
+import { VirtualizedPdfPageWrapper, PdfPageData } from "./VirtualizedPdfPageWrapper";
 import { TextSelectionProps } from "./TextSelection";
 
 interface PdfViewerProps {
@@ -299,7 +299,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                             overscanCount={2}
                             onItemsRendered={this.updateCurrentVisiblePage}
                         >
-                            {PdfPage}
+                            {VirtualizedPdfPageWrapper}
                         </VariableSizeList>
                     )}
                 </Document>
