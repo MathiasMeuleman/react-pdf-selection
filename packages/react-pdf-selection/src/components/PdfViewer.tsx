@@ -14,6 +14,8 @@ import {TextSelectionProps} from "./TextSelection";
 interface PdfViewerProps {
     url: string;
     selections?: Array<SelectionType>;
+    scale?: number;
+    overscanCount?: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
@@ -45,10 +47,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     BORDER_WIDTH_OFFSET = 11;
 
     /** Scale value for PDF size */
-    scale = 1.2;
+    scale = this.props.scale ?? 1.2;
 
     /** Amount of pages that should be rendered past the pages in current viewport. */
-    overscanCount = 1;
+    overscanCount = this.props.overscanCount ?? 1;
 
     containerDiv: HTMLElement | null = null;
 
