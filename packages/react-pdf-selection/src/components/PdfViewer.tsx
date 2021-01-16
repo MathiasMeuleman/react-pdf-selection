@@ -20,6 +20,8 @@ import {PdfPage} from "./PdfPage";
 import {PlaceholderPage} from "./PlaceholderPage";
 import {TextSelectionProps} from "./TextSelection";
 
+export type PageDimensions = Map<number, { width: number; height: number }>;
+
 interface PdfViewerProps {
     children?: ComponentType<{ document: ReactElement }>;
     loading?: string | ReactElement | (() => ReactElement);
@@ -28,6 +30,11 @@ interface PdfViewerProps {
     scale: number;
     overscanCount: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
+    onPageDimensions?: ({ pageDimensions, pageYOffsets, pageGap }: {
+        pageDimensions: PageDimensions;
+        pageYOffsets: number[];
+        pageGap: number;
+    }) => void;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
     textSelectionColor?: CSSProperties["color"];
@@ -41,8 +48,8 @@ interface PdfViewerState {
     textSelectionEnabled: boolean;
     areaSelectionActivePage?: number;
     numPages: number;
-    originalPageDimensions?: Map<number, { width: number; height: number }>;
-    pageDimensions?: Map<number, { width: number; height: number }>;
+    originalPageDimensions?: PageDimensions;
+    pageDimensions?: PageDimensions;
     pageYOffsets?: number[];
     visiblePages?: number[];
 }
@@ -137,7 +144,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
         Promise.all(promises).then((pages) => {
             if (!this._mounted) return;
-            const originalPageDimensions = new Map<number, { width: number; height: number }>();
+            const originalPageDimensions: PageDimensions = new Map();
 
             for (const page of pages) {
                 const width = page.view[2];
@@ -150,8 +157,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         });
     };
 
-    computeScaledPageDimensions = (originalPageDimensions: Map<number, { width: number; height: number }>) => {
-        const pageDimensions = new Map<number, { width: number; height: number }>();
+    computeScaledPageDimensions = (originalPageDimensions: PageDimensions) => {
+        const pageDimensions: PageDimensions = new Map();
         const pageYOffsets: number[] = new Array(originalPageDimensions.size);
 
         originalPageDimensions.forEach((dimension, pageNumber) => {
@@ -164,6 +171,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         const visiblePages = this.getVisiblePages(document.documentElement, pageYOffsets);
 
         this.setState({ pageDimensions, pageYOffsets, visiblePages });
+        this.props.onPageDimensions?.({ pageDimensions, pageYOffsets, pageGap: this.BORDER_WIDTH_OFFSET });
     };
 
     getVisiblePages = (scrollElement: HTMLElement, pageYOffsets?: number[]) => {
