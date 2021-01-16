@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import {PageLoader} from "./PageLoader";
+import "../style/spinner.css";
 
 interface PlaceHolderPageProps {
     pageDimensions?: { width: number; height: number };
@@ -13,7 +15,9 @@ export class PlaceholderPage extends Component<PlaceHolderPageProps> {
                     width: `${this.props.pageDimensions?.width}px`,
                     height: `${this.props.pageDimensions?.height}px`,
                 }}
-            />
+            >
+                <PageLoader />
+            </div>
         );
     };
 }

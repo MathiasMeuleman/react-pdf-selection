@@ -13,6 +13,7 @@ import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } fro
 import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
 import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
 import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
+import {PageLoader} from "./PageLoader";
 import { TextSelection, TextSelectionProps } from "./TextSelection";
 
 export interface PdfPageProps {
@@ -213,6 +214,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
                         width={pageDimensions?.width}
                         height={pageDimensions?.height}
                         inputRef={this.inputRef}
+                        loading={<PageLoader />}
                         onLoadSuccess={this.onPageLoad}
                         onRenderSuccess={this.onPageRender}
                     >

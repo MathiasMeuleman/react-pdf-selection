@@ -4,25 +4,25 @@ import React, {
     createElement,
     createRef,
     CSSProperties,
-    PureComponent,
     ReactElement,
     RefObject,
 } from "react";
-import isEqual from "react-fast-compare";
-import { Document, pdfjs } from "react-pdf";
+import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../style/react_pdf_viewer.css";
-import { NormalizedAreaSelection, NormalizedTextSelection, SelectionType } from "../types";
-import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
-import { normalizePosition } from "../utils/coordinates";
-import { AreaSelectionProps } from "./AreaSelection";
-import { NewAreaSelectionProps } from "./NewAreaSelection";
-import { PdfPage } from "./PdfPage";
-import { PlaceholderPage } from "./PlaceholderPage";
-import { TextSelectionProps } from "./TextSelection";
+import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
+import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
+import {normalizePosition} from "../utils/coordinates";
+import {AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelectionProps} from "./NewAreaSelection";
+import {PageLoader} from "./PageLoader";
+import {PdfPage} from "./PdfPage";
+import {PlaceholderPage} from "./PlaceholderPage";
+import {TextSelectionProps} from "./TextSelection";
 
 interface PdfViewerProps {
     children?: ComponentType<{ document: ReactElement }>;
+    loading?: string | ReactElement | (() => ReactElement);
     url: string;
     selections?: Array<SelectionType>;
     scale: number;
@@ -308,6 +308,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     };
 
     render = () => {
+        const loading = this.props.loading ?? <PageLoader />;
         const document: ReactElement = (
             <div
                 ref={(ref) => (this.containerDiv = ref)}
@@ -326,6 +327,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 <Document
                     className={this.state.textSelectionEnabled ? "" : "no-select"}
                     file={this.props.url}
+                    loading={loading}
                     onLoadSuccess={this.onDocumentLoad}
                 >
                     {this.containerDiv && this.state.documentUuid && this.state.pageDimensions && this.renderPages()}
