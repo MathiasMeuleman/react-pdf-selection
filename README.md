@@ -37,6 +37,7 @@ Property | Type | Required | Notes
 pdfDocument | `PDFDocumentProxy` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package.
 selections | `SelectionType[]` | no | See the `SelectionType` definitions below. Note that the bounding rectangles should be normalized by the page dimensions (so should be between 0 and 1).
 enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
+onPageDimensions | `(pageDimensionData: PageDimensionData) => void` | no | Is called whenever the page dimensions are recalculatd.
 onTextSelection | `(selection?: NormalizedTextSelection) => void` | no | Is called with the `NormalizedTextSelection` when a new text selection is made, or with `undefined` when the text selection is cancelled/removed.
 onAreaSelection | `(selection?: NormalizedAreaSelection) => void` | no | Is called with the `NormalizedAreaSelection` when a new area selection is made, or with `undefined` when the area selection is cancelled/removed.
 textSelectionColor | `CSSProperties["color"]` | no | The color for selected text in the rendered PDF document. Defaults to `"blue"`.
@@ -45,6 +46,8 @@ textSelectionComponent | `ComponentType<TextSelectionProps>` | no | Override for
 newAreaSelectionComponent | `ComponentType<NewAreaSelectionProps>` | no | Override for the default `NewAreaSelection` component.<sup>1</sup>
 
 <sup>1</sup> See the [custom component specification](#custom-component-specification)
+
+#### `SelectionType`
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
@@ -78,6 +81,14 @@ left | number | yes
 top | number | yes
 right | number | yes
 bottom | number | yes
+
+#### `PageDimensionData`
+
+Property | Type | Notes
+:---|:---|:---
+pageDimensions | `Map<number, { width: number; height: number }>` | A map of page dimensions, where the keys are page numbers (1-based, as in the `Position` objects) and values are `{ width: number; height: number }` objects.
+pageYOffsets | `number[]` | An array of page height offsets, indicating at what height the top of the next page is. Note that the `pageGap` is already factored in for these values.
+pageGap | `number` | The height gap in pixels between subsequent pages.
 
 ### Custom component specification
 

@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.6.3
+- Add page loading component, allow document loading prop to override default loading component shown.
+- Add `onPageDimensions` prop to `PdfViewer` that receives the calculated page dimension data.
+
 ### 0.6.2
 Have `PdfViewer` accept a React component as `children` that will receive the rendered PDF Document.
 Default the PDF Document will be rendered.
