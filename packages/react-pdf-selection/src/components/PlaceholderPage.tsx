@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {PageLoader} from "./PageLoader";
+import { PageLoader } from "./PageLoader";
 import "../style/spinner.css";
 
 interface PlaceHolderPageProps {

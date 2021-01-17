@@ -13,7 +13,7 @@ import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } fro
 import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
 import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
 import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
-import {PageLoader} from "./PageLoader";
+import { PageLoader } from "./PageLoader";
 import { TextSelection, TextSelectionProps } from "./TextSelection";
 
 export interface PdfPageProps {
