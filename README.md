@@ -32,9 +32,11 @@ npm start
 
 #### `PdfViewer`
 
+General note: all function props that are passed to `PdfViewer` (such as `enableAreaSelection`, `onTextSelection`, etc) should be memoized to avoid performance hits.
+
 Property | Type | Required | Notes
 :---|:---|:---|:---
-pdfDocument | `PDFDocumentProxy` | yes | The `PDFDocumentProxy` type comes from the `pdfjs-dist` package.
+url | `string` | yes | The URL from which the PDF file will be retrieved. Note that CORS headers might be needed if the file resides on a remote server.
 selections | `SelectionType[]` | no | See the `SelectionType` definitions below. Note that the bounding rectangles should be normalized by the page dimensions (so should be between 0 and 1).
 enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
 onPageDimensions | `(pageDimensionData: PageDimensionData) => void` | no | Is called whenever the page dimensions are recalculatd.

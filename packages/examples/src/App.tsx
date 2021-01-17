@@ -1,9 +1,8 @@
-import React, {ReactElement, useState} from "react";
-import { NormalizedSelection, PdfViewer } from "react-pdf-selection";
-import { pdfs } from "./example-pdfs";
-import { SelectionTooltip } from "./SelectionTooltip";
+import React, {ReactElement, useCallback, useState} from "react";
+import {NormalizedSelection, PdfViewer} from "react-pdf-selection";
 
 import "./App.css";
+import {pdfs} from "./example-pdfs";
 
 const Viewer = ({ document }: { document: ReactElement }) => {
     return (
@@ -25,10 +24,10 @@ const App = () => {
     const [scale, setScale] = useState(1.2);
     const toggleUrl = () => setPdfIdx(pdfIdx > 0 ? 0 : 1);
 
-    const setAndLogSelection = (highlightTip?: NormalizedSelection) => {
+    const setAndLogSelection = useCallback((highlightTip?: NormalizedSelection) => {
         console.log(highlightTip);
         setSelection(highlightTip);
-    };
+    }, [setSelection]);
 
     return (
         <div className="app-container">
@@ -37,12 +36,12 @@ const App = () => {
                     <PdfViewer
                         url={pdfs[pdfIdx].url}
                         selections={pdfs[pdfIdx].selections}
-                        enableAreaSelection={() => areaSelectionActive}
+                        enableAreaSelection={useCallback(() => areaSelectionActive, [areaSelectionActive])}
                         scale={scale}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
                     >
-                        {Viewer}
+                        {({document}) => <Viewer document={document} />}
                     </PdfViewer>
                 </div>
                 <div

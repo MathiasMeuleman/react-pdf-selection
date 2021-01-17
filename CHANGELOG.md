@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.6.4
+- Improved rerendering of `PdfViewer`. This allows functions to passed to `children`, instead of components,
+without triggering a deep rerender at each update.
+- Add mentions of memoization in the docs for `PdfViewer` props.
+
 ### 0.6.3
 - Add page loading component, allow document loading prop to override default loading component shown.
 - Add `onPageDimensions` prop to `PdfViewer` that receives the calculated page dimension data.
