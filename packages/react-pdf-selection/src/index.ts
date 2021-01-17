@@ -1,5 +1,5 @@
 import { NewAreaSelection } from "./components/NewAreaSelection";
-import { PdfViewer } from "./components/PdfViewer";
+import { PdfViewer, PageDimensions } from "./components/PdfViewer";
 import {
     AreaSelectionType,
     BoundingRect,
@@ -17,6 +17,7 @@ import {
 
 export {
     NewAreaSelection,
+    PageDimensions,
     PdfViewer,
     BoundingRect,
     Position,

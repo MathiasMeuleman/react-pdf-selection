@@ -1,17 +1,17 @@
-import React, {Component, ComponentType, createRef, CSSProperties, ReactElement, RefObject} from "react";
+import React, { Component, ComponentType, createRef, CSSProperties, ReactElement, RefObject } from "react";
 import isEqual from "react-fast-compare";
-import {Document, pdfjs} from "react-pdf";
+import { Document, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../style/react_pdf_viewer.css";
-import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
-import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
-import {normalizePosition} from "../utils/coordinates";
-import {AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelectionProps} from "./NewAreaSelection";
-import {PageLoader} from "./PageLoader";
-import {PdfPage} from "./PdfPage";
-import {PlaceholderPage} from "./PlaceholderPage";
-import {TextSelectionProps} from "./TextSelection";
+import { NormalizedAreaSelection, NormalizedTextSelection, SelectionType } from "../types";
+import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
+import { normalizePosition } from "../utils/coordinates";
+import { AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelectionProps } from "./NewAreaSelection";
+import { PageLoader } from "./PageLoader";
+import { PdfPage } from "./PdfPage";
+import { PlaceholderPage } from "./PlaceholderPage";
+import { TextSelectionProps } from "./TextSelection";
 
 export type PageDimensions = Map<number, { width: number; height: number }>;
 
@@ -23,10 +23,12 @@ interface PdfViewerProps {
     scale: number;
     overscanCount: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
-    onPageDimensions?: ({ pageDimensions, pageYOffsets, pageGap }: {
+    onPageDimensions?: ({
+        pageDimensions,
+        pageYOffsets,
+    }: {
         pageDimensions: PageDimensions;
         pageYOffsets: number[];
-        pageGap: number;
     }) => void;
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
@@ -62,6 +64,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     /** Total left and right border width, needed as offset to avoid PageCanvas rendering past right page border. */
     BORDER_WIDTH_OFFSET = 11;
+    TOP_WIDTH_OFFSET = 10;
 
     containerDiv: HTMLElement | null = null;
 
@@ -157,18 +160,20 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     computeScaledPageDimensions = (originalPageDimensions: PageDimensions) => {
         const pageDimensions: PageDimensions = new Map();
         const pageYOffsets: number[] = new Array(originalPageDimensions.size);
+        pageYOffsets[0] = this.TOP_WIDTH_OFFSET;
 
         originalPageDimensions.forEach((dimension, pageNumber) => {
             const width = dimension.width * this.props.scale;
             const height = dimension.height * this.props.scale;
             pageDimensions.set(pageNumber, { width, height });
-            pageYOffsets[pageNumber - 1] = (pageYOffsets[pageNumber - 2] ?? 0) + height + this.BORDER_WIDTH_OFFSET;
+            if (pageNumber < originalPageDimensions.size)
+                pageYOffsets[pageNumber] = pageYOffsets[pageNumber - 1] + height + this.BORDER_WIDTH_OFFSET;
         });
 
         const visiblePages = this.getVisiblePages(document.documentElement, pageYOffsets);
 
         this.setState({ pageDimensions, pageYOffsets, visiblePages });
-        this.props.onPageDimensions?.({ pageDimensions, pageYOffsets, pageGap: this.BORDER_WIDTH_OFFSET });
+        this.props.onPageDimensions?.({ pageDimensions, pageYOffsets });
     };
 
     getVisiblePages = (scrollElement: HTMLElement, pageYOffsets?: number[]) => {
@@ -339,6 +344,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 </Document>
             </div>
         );
-        return this.props.children ? this.props.children({document}) : document;
+        return this.props.children ? this.props.children({ document }) : document;
     };
 }
