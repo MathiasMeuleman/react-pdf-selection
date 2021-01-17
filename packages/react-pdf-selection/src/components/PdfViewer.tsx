@@ -1,12 +1,5 @@
-import React, {
-    Component,
-    ComponentType,
-    createElement,
-    createRef,
-    CSSProperties,
-    ReactElement,
-    RefObject,
-} from "react";
+import React, {Component, ComponentType, createRef, CSSProperties, ReactElement, RefObject} from "react";
+import isEqual from "react-fast-compare";
 import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../style/react_pdf_viewer.css";
@@ -23,7 +16,7 @@ import {TextSelectionProps} from "./TextSelection";
 export type PageDimensions = Map<number, { width: number; height: number }>;
 
 interface PdfViewerProps {
-    children?: ComponentType<{ document: ReactElement }>;
+    children?: (props: { document: ReactElement }) => ReactElement;
     loading?: string | ReactElement | (() => ReactElement);
     url: string;
     selections?: Array<SelectionType>;
@@ -107,6 +100,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         document.removeEventListener("selectstart", this.onTextSelectionStart);
         document.removeEventListener("selectionchange", this.onTextSelectionChange);
         document.removeEventListener("scroll", this.onScroll);
+    };
+
+    shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps>, nextState: Readonly<PdfViewerState>) => {
+        return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
     };
 
     /**
@@ -340,9 +337,8 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
                 >
                     {this.containerDiv && this.state.documentUuid && this.state.pageDimensions && this.renderPages()}
                 </Document>
-                {this.props.children}
             </div>
         );
-        return this.props.children ? createElement(this.props.children, { document }) : document;
+        return this.props.children ? this.props.children({document}) : document;
     };
 }
