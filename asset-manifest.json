@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/react-pdf-selection/static/css/main.c3424cbe.chunk.css",
-    "main.js": "/react-pdf-selection/static/js/main.1ad274fb.chunk.js",
-    "main.js.map": "/react-pdf-selection/static/js/main.1ad274fb.chunk.js.map",
+    "main.js": "/react-pdf-selection/static/js/main.a333842b.chunk.js",
+    "main.js.map": "/react-pdf-selection/static/js/main.a333842b.chunk.js.map",
     "runtime-main.js": "/react-pdf-selection/static/js/runtime-main.6e3a8c79.js",
     "runtime-main.js.map": "/react-pdf-selection/static/js/runtime-main.6e3a8c79.js.map",
     "static/css/2.5f0b0539.chunk.css": "/react-pdf-selection/static/css/2.5f0b0539.chunk.css",
-    "static/js/2.917fb222.chunk.js": "/react-pdf-selection/static/js/2.917fb222.chunk.js",
-    "static/js/2.917fb222.chunk.js.map": "/react-pdf-selection/static/js/2.917fb222.chunk.js.map",
+    "static/js/2.06d80876.chunk.js": "/react-pdf-selection/static/js/2.06d80876.chunk.js",
+    "static/js/2.06d80876.chunk.js.map": "/react-pdf-selection/static/js/2.06d80876.chunk.js.map",
     "index.html": "/react-pdf-selection/index.html",
     "static/css/2.5f0b0539.chunk.css.map": "/react-pdf-selection/static/css/2.5f0b0539.chunk.css.map",
     "static/css/main.c3424cbe.chunk.css.map": "/react-pdf-selection/static/css/main.c3424cbe.chunk.css.map",
-    "static/js/2.917fb222.chunk.js.LICENSE.txt": "/react-pdf-selection/static/js/2.917fb222.chunk.js.LICENSE.txt"
+    "static/js/2.06d80876.chunk.js.LICENSE.txt": "/react-pdf-selection/static/js/2.06d80876.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.6e3a8c79.js",
     "static/css/2.5f0b0539.chunk.css",
-    "static/js/2.917fb222.chunk.js",
+    "static/js/2.06d80876.chunk.js",
     "static/css/main.c3424cbe.chunk.css",
-    "static/js/main.1ad274fb.chunk.js"
+    "static/js/main.a333842b.chunk.js"
   ]
 }
