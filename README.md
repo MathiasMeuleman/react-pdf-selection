@@ -89,8 +89,7 @@ bottom | number | yes
 Property | Type | Notes
 :---|:---|:---
 pageDimensions | `Map<number, { width: number; height: number }>` | A map of page dimensions, where the keys are page numbers (1-based, as in the `Position` objects) and values are `{ width: number; height: number }` objects.
-pageYOffsets | `number[]` | An array of page height offsets, indicating at what height the top of the next page is. Note that the `pageGap` is already factored in for these values.
-pageGap | `number` | The height gap in pixels between subsequent pages.
+pageYOffsets | `number[]` | An array of page height offsets, indicating at what height the top of the page is. Takes the gap between pages and the border / margin at the top of the document into account.
 
 ### Custom component specification
 

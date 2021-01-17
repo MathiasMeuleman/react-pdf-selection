@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.5
+Improved `pageYOffsets` calculations.
+
 ### 0.6.4
 - Improved rerendering of `PdfViewer`. This allows functions to passed to `children`, instead of components,
 without triggering a deep rerender at each update.
