@@ -201,27 +201,25 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
             />
         );
         return (
-            <div style={this.props.style}>
-                <div
-                    ref={this.props.innerRef}
-                    className="pdfViewer__page-container"
-                    style={pageDimensions ? { width: `${pageDimensions.width}px` } : {}}
-                    onPointerDown={this.onMouseDown}
+            <div
+                ref={this.props.innerRef}
+                className="pdfViewer__page-container"
+                style={{...pageDimensions ? { width: `${pageDimensions.width}px` } : {}, ...this.props.style}}
+                onPointerDown={this.onMouseDown}
+            >
+                <Page
+                    key={`page_${pageNumber}`}
+                    pageNumber={pageNumber}
+                    width={pageDimensions?.width}
+                    height={pageDimensions?.height}
+                    inputRef={this.inputRef}
+                    loading={<PageLoader />}
+                    onLoadSuccess={this.onPageLoad}
+                    onRenderSuccess={this.onPageRender}
                 >
-                    <Page
-                        key={`page_${pageNumber}`}
-                        pageNumber={pageNumber}
-                        width={pageDimensions?.width}
-                        height={pageDimensions?.height}
-                        inputRef={this.inputRef}
-                        loading={<PageLoader />}
-                        onLoadSuccess={this.onPageLoad}
-                        onRenderSuccess={this.onPageRender}
-                    >
-                        {renderComplete && this.renderSelections()}
-                        {newAreaSelection}
-                    </Page>
-                </div>
+                    {renderComplete && this.renderSelections()}
+                    {newAreaSelection}
+                </Page>
             </div>
         );
     };
