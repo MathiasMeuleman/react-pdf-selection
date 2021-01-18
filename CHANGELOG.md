@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.6
+Set `box-sizing` to `content-box` to ensure that box model calculations for page placeholders is done correctly.
+
 ### 0.6.5
 Improved `pageYOffsets` calculations.
 
