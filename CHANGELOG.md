@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.6.8
+Wrap custom TextSelectionComponent and AreaSelectionComponent usages in React Fragments with appropriate `key` props
+to help perform rerendering more efficiently.
+
 ### 0.6.7
 - Change `textSelectionComponent`, `areaSelectionComponent` and `newAreaSelectionComponent` types to render functions.
 This will allow external props to be plugged in more easily when necessary.
