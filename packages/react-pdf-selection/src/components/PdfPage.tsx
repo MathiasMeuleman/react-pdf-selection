@@ -1,4 +1,4 @@
-import React, { Component, createRef, CSSProperties, RefObject } from "react";
+import React, { Component, createRef, CSSProperties, Fragment, RefObject } from "react";
 import isEqual from "react-fast-compare";
 import { Page } from "react-pdf";
 import {
@@ -184,12 +184,12 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
             const normalizedSelection = { ...selection, position };
             return isAreaSelection(normalizedSelection) ? (
                 areaSelectionComponent ? (
-                    areaSelectionComponent({ areaSelection: normalizedSelection })
+                    <Fragment key={i}>{areaSelectionComponent({ areaSelection: normalizedSelection })}</Fragment>
                 ) : (
                     <AreaSelectionComponent key={i} areaSelection={normalizedSelection} />
                 )
             ) : textSelectionComponent ? (
-                textSelectionComponent({ textSelection: normalizedSelection })
+                <Fragment key={i}>{textSelectionComponent({ textSelection: normalizedSelection })}</Fragment>
             ) : (
                 <TextSelectionComponent key={i} textSelection={normalizedSelection} />
             );

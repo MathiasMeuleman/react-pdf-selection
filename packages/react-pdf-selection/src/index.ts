@@ -29,8 +29,5 @@ export type {
     SelectionWithCSSProperties,
     AreaSelectionWithCSSProperties,
     TextSelectionWithCSSProperties,
-}
-export {
-    NewAreaSelection,
-    PdfViewer,
 };
+export { NewAreaSelection, PdfViewer };
