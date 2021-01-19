@@ -32,20 +32,25 @@ npm start
 
 #### `PdfViewer`
 
-General note: all function props that are passed to `PdfViewer` (such as `enableAreaSelection`, `onTextSelection`, etc) should be memoized to avoid performance hits.
+General notes:
+- All function props that are passed to `PdfViewer` (such as `enableAreaSelection`, `onTextSelection`, etc) should be memoized to avoid performance hits.
+- Selections can receive objects as generic types. This allows for additional data to be passed to the Selections by the user.
+This data will also be provided when accessing the props in e.g. `textSelectionComponent`, the generics make sure this is properly typed.
+If you don't use typings, or don't use additional data for the Selections, don't worry about it, everything will work fine without them.
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
 url | `string` | yes | The URL from which the PDF file will be retrieved. Note that CORS headers might be needed if the file resides on a remote server.
-selections | `SelectionType[]` | no | See the `SelectionType` definitions below. Note that the bounding rectangles should be normalized by the page dimensions (so should be between 0 and 1).
+selections | `SelectionType<D>[]` | no | See the `SelectionType` definitions below. Note that the bounding rectangles should be normalized by the page dimensions (so should be between 0 and 1).
 enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
 onPageDimensions | `(pageDimensionData: PageDimensionData) => void` | no | Is called whenever the page dimensions are recalculatd.
 onTextSelection | `(selection?: NormalizedTextSelection) => void` | no | Is called with the `NormalizedTextSelection` when a new text selection is made, or with `undefined` when the text selection is cancelled/removed.
 onAreaSelection | `(selection?: NormalizedAreaSelection) => void` | no | Is called with the `NormalizedAreaSelection` when a new area selection is made, or with `undefined` when the area selection is cancelled/removed.
 textSelectionColor | `CSSProperties["color"]` | no | The color for selected text in the rendered PDF document. Defaults to `"blue"`.
-areaSelectionComponent | `ComponentType<AreaSelectionProps>` | no | Override for the default `AreaSelection` component.<sup>1</sup>
-textSelectionComponent | `ComponentType<TextSelectionProps>` | no | Override for the default `TextSelection` component.<sup>1</sup>
-newAreaSelectionComponent | `ComponentType<NewAreaSelectionProps>` | no | Override for the default `NewAreaSelection` component.<sup>1</sup>
+areaSelectionComponent | `(props: AreaSelectionProps<D>) => JSX.Element` | no | Override for the default `AreaSelection` component.<sup>1</sup>
+textSelectionComponent | `(props: TextSelectionProps<D> => JSX.Element` | no | Override for the default `TextSelection` component.<sup>1</sup>
+newAreaSelectionComponent | `(props: NewAreaSelectionProps) => JSX.Element` | no | Override for the default `NewAreaSelection` component.<sup>1</sup>
+children | `(props: {document: ReactElement}) => ReactElement | no | Override for the default Document renderer. The `document` prop contains the `ReactElement` in which the entire PDF viewer is rendered. When not provided, the `document` is rendered as is.
 
 <sup>1</sup> See the [custom component specification](#custom-component-specification)
 

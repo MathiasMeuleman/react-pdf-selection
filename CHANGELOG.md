@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.6.7
+- Change `textSelectionComponent`, `areaSelectionComponent` and `newAreaSelectionComponent` types to render functions.
+This will allow external props to be plugged in more easily when necessary.
+- Add generic types to all ...Selection... types. This allows supplemental fields to passed with the Selection
+objects, which will still be correctly typed when they are passed back in e.g. the `TextSelection` component props.
+
 ### 0.6.6
 Set `box-sizing` to `content-box` to ensure that box model calculations for page placeholders is done correctly.
 
