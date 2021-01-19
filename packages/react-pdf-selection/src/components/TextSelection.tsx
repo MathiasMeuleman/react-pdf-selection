@@ -1,8 +1,8 @@
 import React from "react";
 import { TextSelectionWithCSSProperties } from "../types";
 
-export type TextSelectionProps = {
-    textSelection: TextSelectionWithCSSProperties;
+export type TextSelectionProps<D extends object = {}> = {
+    textSelection: TextSelectionWithCSSProperties<D>;
 };
 
 export const TextSelection = ({ textSelection }: TextSelectionProps) => (

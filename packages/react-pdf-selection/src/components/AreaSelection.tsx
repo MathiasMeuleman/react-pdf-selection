@@ -1,8 +1,8 @@
 import React from "react";
 import { AreaSelectionWithCSSProperties } from "../types";
 
-export type AreaSelectionProps = {
-    areaSelection: AreaSelectionWithCSSProperties;
+export type AreaSelectionProps<D extends object = {}> = {
+    areaSelection: AreaSelectionWithCSSProperties<D>;
 };
 
 export const AreaSelection = ({ areaSelection }: AreaSelectionProps) => (

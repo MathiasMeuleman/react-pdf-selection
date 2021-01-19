@@ -4,8 +4,9 @@ import { getAreaAsPNG } from "./image";
 import { getBoundingRect, getClientRects } from "./rects";
 import { generateUuid } from "./uuid";
 
+export type { Dimensions };
+
 export {
-    Dimensions,
     getAbsoluteBoundingRectWithCSSProperties,
     getBoundingRectWithCSSProperties,
     getBoundingRect,

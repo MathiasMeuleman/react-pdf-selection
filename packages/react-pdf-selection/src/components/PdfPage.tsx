@@ -1,4 +1,4 @@
-import React, { Component, ComponentType, createRef, CSSProperties, RefObject } from "react";
+import React, { Component, createRef, CSSProperties, RefObject } from "react";
 import isEqual from "react-fast-compare";
 import { Page } from "react-pdf";
 import {
@@ -16,19 +16,19 @@ import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
 import { PageLoader } from "./PageLoader";
 import { TextSelection, TextSelectionProps } from "./TextSelection";
 
-export interface PdfPageProps {
+export interface PdfPageProps<D extends object> {
     pageNumber: number;
     style: CSSProperties;
     innerRef: RefObject<HTMLDivElement>;
     areaSelectionActive: boolean;
     pageDimensions?: { width: number; height: number };
-    selections?: SelectionType[];
+    selections?: SelectionType<D>[];
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
-    textSelectionComponent?: ComponentType<TextSelectionProps>;
-    areaSelectionComponent?: ComponentType<AreaSelectionProps>;
-    newAreaSelectionComponent?: ComponentType<NewAreaSelectionProps>;
+    textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
+    areaSelectionComponent?: (props: AreaSelectionProps<D>) => JSX.Element;
+    newAreaSelectionComponent?: (props: NewAreaSelectionProps) => JSX.Element;
 }
 
 interface PdfPageState {
@@ -41,7 +41,7 @@ interface PdfPageState {
     };
 }
 
-export class PdfPage extends Component<PdfPageProps, PdfPageState> {
+export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPageState> {
     state: PdfPageState = {
         renderComplete: false,
     };
@@ -57,7 +57,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
         this._mounted = false;
     };
 
-    shouldComponentUpdate(nextProps: Readonly<PdfPageProps>, nextState: Readonly<PdfPageState>) {
+    shouldComponentUpdate(nextProps: Readonly<PdfPageProps<D>>, nextState: Readonly<PdfPageState>) {
         return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
     }
 
@@ -183,7 +183,13 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
             const position = getPositionWithCSSProperties(selection.position, pageDimensions);
             const normalizedSelection = { ...selection, position };
             return isAreaSelection(normalizedSelection) ? (
-                <AreaSelectionComponent key={i} areaSelection={normalizedSelection} />
+                areaSelectionComponent ? (
+                    areaSelectionComponent({ areaSelection: normalizedSelection })
+                ) : (
+                    <AreaSelectionComponent key={i} areaSelection={normalizedSelection} />
+                )
+            ) : textSelectionComponent ? (
+                textSelectionComponent({ textSelection: normalizedSelection })
             ) : (
                 <TextSelectionComponent key={i} textSelection={normalizedSelection} />
             );
@@ -204,7 +210,7 @@ export class PdfPage extends Component<PdfPageProps, PdfPageState> {
             <div
                 ref={this.props.innerRef}
                 className="pdfViewer__page-container"
-                style={{...pageDimensions ? { width: `${pageDimensions.width}px` } : {}, ...this.props.style}}
+                style={{ ...(pageDimensions ? { width: `${pageDimensions.width}px` } : {}), ...this.props.style }}
                 onPointerDown={this.onMouseDown}
             >
                 <Page

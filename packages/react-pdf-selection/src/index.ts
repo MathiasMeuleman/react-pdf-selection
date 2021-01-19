@@ -15,10 +15,8 @@ import {
     SelectionWithCSSProperties,
 } from "./types";
 
-export {
-    NewAreaSelection,
+export type {
     PageDimensions,
-    PdfViewer,
     BoundingRect,
     Position,
     NormalizedPosition,
@@ -31,4 +29,8 @@ export {
     SelectionWithCSSProperties,
     AreaSelectionWithCSSProperties,
     TextSelectionWithCSSProperties,
+}
+export {
+    NewAreaSelection,
+    PdfViewer,
 };

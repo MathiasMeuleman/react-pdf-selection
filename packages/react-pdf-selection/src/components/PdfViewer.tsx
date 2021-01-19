@@ -1,4 +1,4 @@
-import React, { Component, ComponentType, createRef, CSSProperties, ReactElement, RefObject } from "react";
+import React, { Component, createRef, CSSProperties, ReactElement, RefObject } from "react";
 import isEqual from "react-fast-compare";
 import { Document, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -15,11 +15,11 @@ import { TextSelectionProps } from "./TextSelection";
 
 export type PageDimensions = Map<number, { width: number; height: number }>;
 
-interface PdfViewerProps {
+interface PdfViewerProps<D extends object> {
     children?: (props: { document: ReactElement }) => ReactElement;
     loading?: string | ReactElement | (() => ReactElement);
     url: string;
-    selections?: Array<SelectionType>;
+    selections?: Array<SelectionType<D>>;
     scale: number;
     overscanCount: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
@@ -33,9 +33,9 @@ interface PdfViewerProps {
     onTextSelection?: (highlightTip?: NormalizedTextSelection) => void;
     onAreaSelection?: (highlightTip?: NormalizedAreaSelection) => void;
     textSelectionColor?: CSSProperties["color"];
-    textSelectionComponent?: ComponentType<TextSelectionProps>;
-    areaSelectionComponent?: ComponentType<AreaSelectionProps>;
-    newAreaSelectionComponent?: ComponentType<NewAreaSelectionProps>;
+    textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
+    areaSelectionComponent?: (props: AreaSelectionProps<D>) => JSX.Element;
+    newAreaSelectionComponent?: (props: NewAreaSelectionProps) => JSX.Element;
 }
 
 interface PdfViewerState {
@@ -51,7 +51,7 @@ interface PdfViewerState {
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
+export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, PdfViewerState> {
     static defaultProps = {
         overscanCount: 1,
         scale: 1.2,
@@ -70,7 +70,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
 
     pageRefs: Map<number, RefObject<HTMLDivElement>> = new Map();
 
-    selectionMap: Map<number, SelectionType[]> | undefined;
+    selectionMap: Map<number, SelectionType<D>[]> | undefined;
 
     _mounted: boolean = false;
 
@@ -90,7 +90,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         (window as any).PdfViewer = this;
     };
 
-    componentDidUpdate = (prevProps: PdfViewerProps) => {
+    componentDidUpdate = (prevProps: PdfViewerProps<D>) => {
         if (this.props.selections !== prevProps.selections) this.computeSelectionMap();
         if (this.props.url !== prevProps.url) this.setState({ documentUuid: undefined });
         if (this.props.scale !== prevProps.scale && this.state.originalPageDimensions)
@@ -105,7 +105,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         document.removeEventListener("scroll", this.onScroll);
     };
 
-    shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps>, nextState: Readonly<PdfViewerState>) => {
+    shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps<D>>, nextState: Readonly<PdfViewerState>) => {
         return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
     };
 
@@ -123,7 +123,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             this.selectionMap = undefined;
             return;
         }
-        const selectionMap: Map<number, SelectionType[]> = new Map();
+        const selectionMap: Map<number, SelectionType<D>[]> = new Map();
         this.props.selections.forEach((selection) => {
             selectionMap.set(selection.position.pageNumber, [
                 ...(selectionMap.get(selection.position.pageNumber) ?? []),
