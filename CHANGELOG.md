@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.9
+Keep better track of selected contents, to avoid calling the `onSelection` callback functions too often.
+
 ### 0.6.8
 Wrap custom TextSelectionComponent and AreaSelectionComponent usages in React Fragments with appropriate `key` props
 to help perform rerendering more efficiently.
