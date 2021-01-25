@@ -25,6 +25,7 @@ export interface PdfPageProps<D extends object> {
     selections?: SelectionType<D>[];
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onAreaSelectionStart?: (pageNumber: number) => void;
+    onAreaSelectionChange?: () => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
     textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
     areaSelectionComponent?: (props: AreaSelectionProps<D>) => JSX.Element;
@@ -37,6 +38,7 @@ interface PdfPageState {
         originTarget?: HTMLElement;
         start?: Coords;
         position?: NormalizedPosition;
+        moved?: boolean;
         locked?: boolean;
     };
 }
@@ -93,7 +95,7 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         if (!start) return;
 
         this.setState({
-            areaSelection: { originTarget: event.target as HTMLElement, start, locked: false },
+            areaSelection: { originTarget: event.target as HTMLElement, start, moved: false, locked: false },
         });
     };
 
@@ -119,11 +121,13 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         const { areaSelection } = this.state;
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
-        this.setState({ areaSelection: { ...areaSelection, position } });
+        this.setState({ areaSelection: { ...areaSelection, moved: true, position } });
+        this.props.onAreaSelectionChange?.();
     };
 
     onAreaSelectEnd = (event: MouseEvent) => {
         const { areaSelection } = this.state;
+        if (!areaSelection?.moved) return;
         const { onAreaSelectionEnd } = this.props;
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
@@ -156,20 +160,16 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         if (!enableAreaSelection?.(event)) return;
         document.addEventListener("pointermove", this.onMouseMove);
         document.addEventListener("pointerup", this.onMouseUp);
-        event.preventDefault();
-        event.stopPropagation();
         this.onAreaSelectStart(event);
     };
 
     onMouseMove = (event: MouseEvent) => {
-        event.stopPropagation();
         this.onAreaSelectChange(event);
     };
 
     onMouseUp = (event: MouseEvent) => {
         document.removeEventListener("pointermove", this.onMouseMove);
         document.removeEventListener("pointerup", this.onMouseUp);
-        event.stopPropagation();
         this.onAreaSelectEnd(event);
     };
 

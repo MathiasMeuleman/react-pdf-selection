@@ -41,7 +41,9 @@ interface PdfViewerProps<D extends object> {
 interface PdfViewerState {
     documentUuid?: string;
     textSelectionEnabled: boolean;
+    textSelectionActive: boolean;
     areaSelectionActivePage?: number;
+    areaSelectionActive: boolean;
     numPages: number;
     originalPageDimensions?: PageDimensions;
     pageDimensions?: PageDimensions;
@@ -59,6 +61,8 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
 
     state: PdfViewerState = {
         textSelectionEnabled: true,
+        textSelectionActive: false,
+        areaSelectionActive: false,
         numPages: 0,
     };
 
@@ -215,7 +219,10 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
 
     clearTextSelection = () => {
         getWindow(this.containerDiv).getSelection()?.removeAllRanges();
-        this.props.onTextSelection?.();
+        if (this.state.textSelectionActive) {
+            this.setState({textSelectionActive: false});
+            this.props.onTextSelection?.();
+        }
     };
 
     onTextSelectionStart = () => {
@@ -242,6 +249,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
             .map((node) => node.textContent)
             .join(" ");
 
+        this.setState({textSelectionActive: true});
         this.props.onTextSelection?.({ position, text });
     };
 
@@ -250,14 +258,20 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
      */
 
     clearAreaSelection = () => {
-        this.setState({ areaSelectionActivePage: undefined, textSelectionEnabled: true });
-        this.props.onAreaSelection?.();
+        if (this.state.areaSelectionActive) {
+            this.setState({areaSelectionActive: false, areaSelectionActivePage: undefined, textSelectionEnabled: true});
+            this.props.onAreaSelection?.();
+        }
     };
 
     onAreaSelectionStart = (pageNumber: number) => {
         this.clearTextSelection();
         this.setState({ textSelectionEnabled: false, areaSelectionActivePage: pageNumber });
     };
+
+    onAreaSelectionChange = () => {
+        this.setState({areaSelectionActive: true});
+    }
 
     onAreaSelectionEnd = (selection: NormalizedAreaSelection) => {
         this.setState({ textSelectionEnabled: true });
@@ -308,6 +322,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 selections: this.selectionMap?.get(pageNumber),
                 enableAreaSelection: this.props.enableAreaSelection,
                 onAreaSelectionStart: this.onAreaSelectionStart,
+                onAreaSelectionChange: this.onAreaSelectionChange,
                 onAreaSelectionEnd: this.onAreaSelectionEnd,
                 areaSelectionComponent: this.props.areaSelectionComponent,
                 textSelectionComponent: this.props.textSelectionComponent,
