@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.10
+Move `PdfViewer` `selectionMap` from class property to state.
+
 ### 0.6.9
 Keep better track of selected contents, to avoid calling the `onSelection` callback functions too often.
 

@@ -38,12 +38,13 @@ interface PdfViewerProps<D extends object> {
     newAreaSelectionComponent?: (props: NewAreaSelectionProps) => JSX.Element;
 }
 
-interface PdfViewerState {
+interface PdfViewerState<D extends object> {
     documentUuid?: string;
     textSelectionEnabled: boolean;
     textSelectionActive: boolean;
     areaSelectionActivePage?: number;
     areaSelectionActive: boolean;
+    selectionMap?: Map<number, SelectionType<D>[]>;
     numPages: number;
     originalPageDimensions?: PageDimensions;
     pageDimensions?: PageDimensions;
@@ -53,13 +54,13 @@ interface PdfViewerState {
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, PdfViewerState> {
+export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, PdfViewerState<D>> {
     static defaultProps = {
         overscanCount: 1,
         scale: 1.2,
     };
 
-    state: PdfViewerState = {
+    state: PdfViewerState<D> = {
         textSelectionEnabled: true,
         textSelectionActive: false,
         areaSelectionActive: false,
@@ -73,8 +74,6 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     containerDiv: HTMLElement | null = null;
 
     pageRefs: Map<number, RefObject<HTMLDivElement>> = new Map();
-
-    selectionMap: Map<number, SelectionType<D>[]> | undefined;
 
     _mounted: boolean = false;
 
@@ -109,7 +108,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         document.removeEventListener("scroll", this.onScroll);
     };
 
-    shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps<D>>, nextState: Readonly<PdfViewerState>) => {
+    shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps<D>>, nextState: Readonly<PdfViewerState<D>>) => {
         return !isEqual(this.props, nextProps) || !isEqual(this.state, nextState);
     };
 
@@ -124,7 +123,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
 
     computeSelectionMap = () => {
         if (!this.props.selections) {
-            this.selectionMap = undefined;
+            this.state.selectionMap = undefined;
             return;
         }
         const selectionMap: Map<number, SelectionType<D>[]> = new Map();
@@ -134,7 +133,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 selection,
             ]);
         });
-        this.selectionMap = selectionMap;
+        this.setState({selectionMap});
     };
 
     computePageDimensions = (pdf: pdfjs.PDFDocumentProxy) => {
@@ -319,7 +318,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 innerRef: this.getPageRef(pageNumber),
                 areaSelectionActive: this.state.areaSelectionActivePage === pageNumber,
                 pageDimensions: this.state.pageDimensions?.get(pageNumber),
-                selections: this.selectionMap?.get(pageNumber),
+                selections: this.state.selectionMap?.get(pageNumber),
                 enableAreaSelection: this.props.enableAreaSelection,
                 onAreaSelectionStart: this.onAreaSelectionStart,
                 onAreaSelectionChange: this.onAreaSelectionChange,
