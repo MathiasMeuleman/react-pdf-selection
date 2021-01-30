@@ -323,6 +323,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 onAreaSelectionStart: this.onAreaSelectionStart,
                 onAreaSelectionChange: this.onAreaSelectionChange,
                 onAreaSelectionEnd: this.onAreaSelectionEnd,
+                textSelectionColor: this.props.textSelectionColor ?? "blue",
                 areaSelectionComponent: this.props.areaSelectionComponent,
                 textSelectionComponent: this.props.textSelectionComponent,
                 newAreaSelectionComponent: this.props.newAreaSelectionComponent,
@@ -342,12 +343,6 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 onContextMenu={(e) => e.preventDefault()}
                 onPointerDown={this.onMouseDown}
             >
-                <style>
-                    {`
-                        .react-pdf__Page__textContent span::selection {
-                            background-color: ${this.props.textSelectionColor ?? "blue"};
-                    `}
-                </style>
                 <Document
                     className={this.state.textSelectionEnabled ? "" : "no-select"}
                     file={this.props.url}

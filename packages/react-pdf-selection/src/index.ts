@@ -3,6 +3,7 @@ import { PdfViewer, PageDimensions } from "./components/PdfViewer";
 import {
     AreaSelectionType,
     BoundingRect,
+    BoundingRectWithCSSProperties,
     NormalizedAreaSelection,
     NormalizedPosition,
     NormalizedSelection,
@@ -18,6 +19,7 @@ import {
 export type {
     PageDimensions,
     BoundingRect,
+    BoundingRectWithCSSProperties,
     Position,
     NormalizedPosition,
     SelectionType,

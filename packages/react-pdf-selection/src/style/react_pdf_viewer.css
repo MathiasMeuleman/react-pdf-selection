@@ -1,5 +1,5 @@
-.react-pdf__Page__textContent span {
-    opacity: 0.1;
+.react-pdf__Page__textContent span::selection {
+    background-color: var(--selection-color);
 }
 
 .pdfViewer__page-container {

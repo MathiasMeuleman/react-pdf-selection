@@ -27,6 +27,7 @@ export interface PdfPageProps<D extends object> {
     onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionChange?: () => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
+    textSelectionColor: string;
     textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
     areaSelectionComponent?: (props: AreaSelectionProps<D>) => JSX.Element;
     newAreaSelectionComponent?: (props: NewAreaSelectionProps) => JSX.Element;
@@ -210,7 +211,12 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
             <div
                 ref={this.props.innerRef}
                 className="pdfViewer__page-container"
-                style={{ ...(pageDimensions ? { width: `${pageDimensions.width}px` } : {}), ...this.props.style }}
+                style={{
+                    // @ts-ignore-next-line A bit hacky, but it works to set a custom ::selection color programmatically
+                    "--selection-color": this.props.textSelectionColor,
+                    ...(pageDimensions ? { width: `${pageDimensions.width}px` } : {}),
+                    ...this.props.style,
+                }}
                 onPointerDown={this.onMouseDown}
             >
                 <Page
