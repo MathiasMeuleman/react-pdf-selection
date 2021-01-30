@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.11
+Improve custom text selection color handling
+
 ### 0.6.10
 Move `PdfViewer` `selectionMap` from class property to state.
 
