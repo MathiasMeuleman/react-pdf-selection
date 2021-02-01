@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.12
+Tighten boundaries of selection change event listeners
+
 ### 0.6.11
 Improve custom text selection color handling
 
