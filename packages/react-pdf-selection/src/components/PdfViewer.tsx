@@ -85,9 +85,9 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         this._mounted = true;
         this.computeSelectionMap();
         document.addEventListener("keydown", this.onKeyDown);
-        document.addEventListener("selectstart", this.onTextSelectionStart);
-        document.addEventListener("selectionchange", this.onTextSelectionChange);
         document.addEventListener("scroll", this.onScroll);
+        this.containerDiv?.addEventListener("selectstart", this.onTextSelectionStart);
+        this.containerDiv?.addEventListener("selectionchange", this.onTextSelectionChange);
 
         // debug
         (window as any).PdfViewer = this;
@@ -103,9 +103,9 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     componentWillUnmount = () => {
         this._mounted = false;
         document.removeEventListener("keydown", this.onKeyDown);
-        document.removeEventListener("selectstart", this.onTextSelectionStart);
-        document.removeEventListener("selectionchange", this.onTextSelectionChange);
         document.removeEventListener("scroll", this.onScroll);
+        this.containerDiv?.removeEventListener("selectstart", this.onTextSelectionStart);
+        this.containerDiv?.removeEventListener("selectionchange", this.onTextSelectionChange);
     };
 
     shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps<D>>, nextState: Readonly<PdfViewerState<D>>) => {
