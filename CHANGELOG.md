@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.6.13
+- Move SelectionChange listener back to document, since there are troubles with selectionchange listeners on divs.
+- Change the default textSelectionColor value
+
 ### 0.6.12
 Tighten boundaries of selection change event listeners
 

@@ -86,8 +86,6 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         this.computeSelectionMap();
         document.addEventListener("keydown", this.onKeyDown);
         document.addEventListener("scroll", this.onScroll);
-        this.containerDiv?.addEventListener("selectstart", this.onTextSelectionStart);
-        this.containerDiv?.addEventListener("selectionchange", this.onTextSelectionChange);
 
         // debug
         (window as any).PdfViewer = this;
@@ -105,7 +103,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         document.removeEventListener("keydown", this.onKeyDown);
         document.removeEventListener("scroll", this.onScroll);
         this.containerDiv?.removeEventListener("selectstart", this.onTextSelectionStart);
-        this.containerDiv?.removeEventListener("selectionchange", this.onTextSelectionChange);
+        document.removeEventListener("selectionchange", this.onTextSelectionChange);
     };
 
     shouldComponentUpdate = (nextProps: Readonly<PdfViewerProps<D>>, nextState: Readonly<PdfViewerState<D>>) => {
@@ -300,6 +298,9 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     onDocumentLoad = (pdf: pdfjs.PDFDocumentProxy) => {
         this.computePageDimensions(pdf);
         this.setState({ numPages: pdf.numPages, documentUuid: generateUuid() });
+        this.containerDiv?.addEventListener("selectstart", this.onTextSelectionStart);
+        // SelectionChange event listener does not work on div, only on document?
+        document.addEventListener("selectionchange", this.onTextSelectionChange);
     };
 
     renderPages = () => {
@@ -323,7 +324,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 onAreaSelectionStart: this.onAreaSelectionStart,
                 onAreaSelectionChange: this.onAreaSelectionChange,
                 onAreaSelectionEnd: this.onAreaSelectionEnd,
-                textSelectionColor: this.props.textSelectionColor ?? "blue",
+                textSelectionColor: this.props.textSelectionColor ?? "#0000ff33",
                 areaSelectionComponent: this.props.areaSelectionComponent,
                 textSelectionComponent: this.props.textSelectionComponent,
                 newAreaSelectionComponent: this.props.newAreaSelectionComponent,
