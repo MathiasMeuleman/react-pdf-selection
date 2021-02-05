@@ -1,6 +1,6 @@
-import React, {Component, createRef, CSSProperties, Fragment, RefObject} from "react";
+import React, { Component, createRef, CSSProperties, Fragment, RefObject } from "react";
 import isEqual from "react-fast-compare";
-import {Page} from "react-pdf";
+import { Page } from "react-pdf";
 import {
     BoundingRect,
     Coords,
@@ -9,13 +9,13 @@ import {
     NormalizedPosition,
     SelectionType,
 } from "../types";
-import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
-import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
-import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
-import {NewAreaSelection, NewAreaSelectionProps} from "./NewAreaSelection";
-import {PageLoader} from "./PageLoader";
-import {SelectionMode} from "./PdfViewer";
-import {TextSelection, TextSelectionProps} from "./TextSelection";
+import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
+import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
+import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
+import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
+import { PageLoader } from "./PageLoader";
+import { SelectionMode } from "./PdfViewer";
+import { TextSelection, TextSelectionProps } from "./TextSelection";
 
 export interface PdfPageProps<D extends object> {
     pageNumber: number;

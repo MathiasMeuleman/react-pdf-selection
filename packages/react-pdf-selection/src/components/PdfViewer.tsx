@@ -134,7 +134,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 selection,
             ]);
         });
-        this.setState({selectionMap});
+        this.setState({ selectionMap });
     };
 
     computePageDimensions = (pdf: pdfjs.PDFDocumentProxy) => {
@@ -220,7 +220,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     clearTextSelection = () => {
         getWindow(this.containerDiv).getSelection()?.removeAllRanges();
         if (this.state.textSelectionActive) {
-            this.setState({textSelectionActive: false});
+            this.setState({ textSelectionActive: false });
             this.props.onTextSelection?.();
         }
     };
@@ -250,7 +250,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
             .map((node) => node.textContent)
             .join(" ");
 
-        this.setState({textSelectionActive: true});
+        this.setState({ textSelectionActive: true });
         this.props.onTextSelection?.({ position, text });
     };
 
