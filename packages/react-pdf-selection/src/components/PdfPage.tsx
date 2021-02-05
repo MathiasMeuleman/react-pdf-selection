@@ -1,6 +1,6 @@
-import React, { Component, createRef, CSSProperties, Fragment, RefObject } from "react";
+import React, {Component, createRef, CSSProperties, Fragment, RefObject} from "react";
 import isEqual from "react-fast-compare";
-import { Page } from "react-pdf";
+import {Page} from "react-pdf";
 import {
     BoundingRect,
     Coords,
@@ -9,23 +9,24 @@ import {
     NormalizedPosition,
     SelectionType,
 } from "../types";
-import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
-import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
-import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
-import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
-import { PageLoader } from "./PageLoader";
-import { TextSelection, TextSelectionProps } from "./TextSelection";
+import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
+import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
+import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelection, NewAreaSelectionProps} from "./NewAreaSelection";
+import {PageLoader} from "./PageLoader";
+import {SelectionMode} from "./PdfViewer";
+import {TextSelection, TextSelectionProps} from "./TextSelection";
 
 export interface PdfPageProps<D extends object> {
     pageNumber: number;
     style: CSSProperties;
     innerRef: RefObject<HTMLDivElement>;
     areaSelectionActive: boolean;
+    enableAreaSelection?: (event: React.MouseEvent) => boolean;
     pageDimensions?: { width: number; height: number };
     selections?: SelectionType<D>[];
-    enableAreaSelection?: (event: React.MouseEvent) => boolean;
     onAreaSelectionStart?: (pageNumber: number) => void;
-    onAreaSelectionChange?: () => void;
+    onAreaSelectionChange?: (pageNumber: number) => void;
     onAreaSelectionEnd?: (selection: NormalizedAreaSelection) => void;
     textSelectionColor: string;
     textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
@@ -123,7 +124,7 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         const position = this.getAreaSelectionPosition(event);
         if (!position) return;
         this.setState({ areaSelection: { ...areaSelection, moved: true, position } });
-        this.props.onAreaSelectionChange?.();
+        this.props.onAreaSelectionChange?.(position.pageNumber);
     };
 
     onAreaSelectEnd = (event: MouseEvent) => {
@@ -157,8 +158,7 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
     };
 
     onMouseDown = (event: React.PointerEvent<HTMLDivElement>) => {
-        const { enableAreaSelection } = this.props;
-        if (!enableAreaSelection?.(event)) return;
+        if (!this.props.enableAreaSelection?.(event)) return;
         document.addEventListener("pointermove", this.onMouseMove);
         document.addEventListener("pointerup", this.onMouseUp);
         this.onAreaSelectStart(event);

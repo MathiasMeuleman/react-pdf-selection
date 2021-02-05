@@ -13,6 +13,11 @@ import { PdfPage } from "./PdfPage";
 import { PlaceholderPage } from "./PlaceholderPage";
 import { TextSelectionProps } from "./TextSelection";
 
+export enum SelectionMode {
+    AREA,
+    TEXT,
+}
+
 export type PageDimensions = Map<number, { width: number; height: number }>;
 
 interface PdfViewerProps<D extends object> {
@@ -40,10 +45,9 @@ interface PdfViewerProps<D extends object> {
 
 interface PdfViewerState<D extends object> {
     documentUuid?: string;
-    textSelectionEnabled: boolean;
+    activeSelectionMode: SelectionMode;
     textSelectionActive: boolean;
     areaSelectionActivePage?: number;
-    areaSelectionActive: boolean;
     selectionMap?: Map<number, SelectionType<D>[]>;
     numPages: number;
     originalPageDimensions?: PageDimensions;
@@ -61,9 +65,8 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     };
 
     state: PdfViewerState<D> = {
-        textSelectionEnabled: true,
+        activeSelectionMode: SelectionMode.TEXT,
         textSelectionActive: false,
-        areaSelectionActive: false,
         numPages: 0,
     };
 
@@ -227,6 +230,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     };
 
     onTextSelectionChange = () => {
+        if (this.state.activeSelectionMode !== SelectionMode.TEXT) return;
         const selection = getWindow(this.containerDiv).getSelection();
         if (!selection || selection.isCollapsed) return;
 
@@ -255,23 +259,17 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
      */
 
     clearAreaSelection = () => {
-        if (this.state.areaSelectionActive) {
-            this.setState({areaSelectionActive: false, areaSelectionActivePage: undefined, textSelectionEnabled: true});
+        if (this.state.areaSelectionActivePage) {
+            this.setState({ areaSelectionActivePage: undefined });
             this.props.onAreaSelection?.();
         }
     };
 
-    onAreaSelectionStart = (pageNumber: number) => {
-        this.clearTextSelection();
-        this.setState({ textSelectionEnabled: false, areaSelectionActivePage: pageNumber });
+    onAreaSelectionChange = (pageNumber: number) => {
+        this.setState({ areaSelectionActivePage: pageNumber });
     };
 
-    onAreaSelectionChange = () => {
-        this.setState({areaSelectionActive: true});
-    }
-
     onAreaSelectionEnd = (selection: NormalizedAreaSelection) => {
-        this.setState({ textSelectionEnabled: true });
         this.props.onAreaSelection?.(selection);
     };
 
@@ -283,8 +281,13 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         if (event.key === "Escape") this.resetSelections();
     };
 
-    onMouseDown = () => {
+    onMouseDown = (event: React.MouseEvent) => {
         this.resetSelections();
+        this.setState({
+            activeSelectionMode: this.props.enableAreaSelection?.(event)
+                ? SelectionMode.AREA
+                : SelectionMode.TEXT ?? SelectionMode.TEXT,
+        });
     };
 
     onScroll = (event: Event) => {
@@ -318,10 +321,9 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 pageNumber,
                 innerRef: this.getPageRef(pageNumber),
                 areaSelectionActive: this.state.areaSelectionActivePage === pageNumber,
+                enableAreaSelection: this.props.enableAreaSelection,
                 pageDimensions: this.state.pageDimensions?.get(pageNumber),
                 selections: this.state.selectionMap?.get(pageNumber),
-                enableAreaSelection: this.props.enableAreaSelection,
-                onAreaSelectionStart: this.onAreaSelectionStart,
                 onAreaSelectionChange: this.onAreaSelectionChange,
                 onAreaSelectionEnd: this.onAreaSelectionEnd,
                 textSelectionColor: this.props.textSelectionColor ?? "#0000ff33",
@@ -345,7 +347,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
                 onPointerDown={this.onMouseDown}
             >
                 <Document
-                    className={this.state.textSelectionEnabled ? "" : "no-select"}
+                    className={this.state.activeSelectionMode === SelectionMode.TEXT ? "" : "no-select"}
                     file={this.props.url}
                     loading={loading}
                     onLoadSuccess={this.onDocumentLoad}
