@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.14
+Improvements on selection changes, removing inconsistencies in active selections.
+
 ### 0.6.13
 - Move SelectionChange listener back to document, since there are troubles with selectionchange listeners on divs.
 - Change the default textSelectionColor value
