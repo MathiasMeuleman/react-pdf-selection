@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/react-pdf-selection/static/css/main.42948733.chunk.css",
-    "main.js": "/react-pdf-selection/static/js/main.2ac0533b.chunk.js",
-    "main.js.map": "/react-pdf-selection/static/js/main.2ac0533b.chunk.js.map",
+    "main.js": "/react-pdf-selection/static/js/main.21441da4.chunk.js",
+    "main.js.map": "/react-pdf-selection/static/js/main.21441da4.chunk.js.map",
     "runtime-main.js": "/react-pdf-selection/static/js/runtime-main.6e3a8c79.js",
     "runtime-main.js.map": "/react-pdf-selection/static/js/runtime-main.6e3a8c79.js.map",
     "static/css/2.5f0b0539.chunk.css": "/react-pdf-selection/static/css/2.5f0b0539.chunk.css",
@@ -18,6 +18,6 @@
     "static/css/2.5f0b0539.chunk.css",
     "static/js/2.40adb456.chunk.js",
     "static/css/main.42948733.chunk.css",
-    "static/js/main.2ac0533b.chunk.js"
+    "static/js/main.21441da4.chunk.js"
   ]
 }
