@@ -76,6 +76,8 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
 
     containerDiv: HTMLElement | null = null;
 
+    scrollingElement: HTMLElement | null = null;
+
     pageRefs: Map<number, RefObject<HTMLDivElement>> = new Map();
 
     _mounted: boolean = false;
@@ -104,7 +106,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     componentWillUnmount = () => {
         this._mounted = false;
         document.removeEventListener("keydown", this.onKeyDown);
-        document.removeEventListener("scroll", this.onScroll);
+        this.scrollingElement?.removeEventListener("scroll", this.onScroll);
         this.containerDiv?.removeEventListener("selectstart", this.onTextSelectionStart);
         document.removeEventListener("selectionchange", this.onTextSelectionChange);
     };
@@ -281,6 +283,17 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
      * Event handlers
      */
 
+    getScrollParent = (node: HTMLElement): HTMLElement => {
+        const overflowY = window.getComputedStyle(node).overflowY;
+        const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+
+        if (isScrollable && node.scrollHeight >= node.clientHeight) {
+            return node;
+        }
+
+        return node.parentElement ? this.getScrollParent(node.parentElement) : document.body;
+    }
+
     onKeyDown = (event: KeyboardEvent) => {
         if (event.key === "Escape") this.resetSelections();
     };
@@ -295,17 +308,19 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     };
 
     onScroll = (event: Event) => {
-        if (!this.containerDiv || !this.state.pageYOffsets) return;
-        const scrollElement = (event.target as HTMLDocument | undefined)?.scrollingElement;
-        if (!scrollElement) return;
-        const visiblePages = this.getVisiblePages(scrollElement as HTMLElement);
+        if (!this.scrollingElement || !this.state.pageYOffsets) return;
+        const visiblePages = this.getVisiblePages(this.scrollingElement);
         this.setState({ visiblePages });
     };
 
     onDocumentLoad = (pdf: pdfjs.PDFDocumentProxy) => {
         this.computePageDimensions(pdf);
         this.setState({ numPages: pdf.numPages, documentUuid: generateUuid() });
-        this.containerDiv?.addEventListener("selectstart", this.onTextSelectionStart);
+        if (this.containerDiv) {
+            this.scrollingElement = this.getScrollParent(this.containerDiv);
+            this.scrollingElement.addEventListener("scroll", this.onScroll);
+            this.containerDiv?.addEventListener("selectstart", this.onTextSelectionStart);
+        }
         // SelectionChange event listener does not work on div, only on document?
         document.addEventListener("selectionchange", this.onTextSelectionChange);
     };
