@@ -162,9 +162,10 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     };
 
     computeScaledPageDimensions = (originalPageDimensions: PageDimensions) => {
+        if (!this.containerDiv) return;
         const pageDimensions: PageDimensions = new Map();
         const pageYOffsets: number[] = new Array(originalPageDimensions.size);
-        pageYOffsets[0] = this.TOP_WIDTH_OFFSET;
+        pageYOffsets[0] = (this.containerDiv.offsetTop ?? 0) + this.TOP_WIDTH_OFFSET;
 
         originalPageDimensions.forEach((dimension, pageNumber) => {
             const width = dimension.width * this.props.scale;
@@ -184,7 +185,10 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         const pageOffsets = pageYOffsets ?? this.state.pageYOffsets;
         if (!pageOffsets) return [];
         const { scrollTop, clientHeight } = scrollElement;
-        const firstVisiblePageIdx = pageOffsets.findIndex((offset) => offset > scrollTop);
+        const firstVisiblePageIdx =
+            scrollTop > pageOffsets[pageOffsets.length - 1]
+                ? pageOffsets.length - 1
+                : pageOffsets.findIndex((offset) => offset > scrollTop);
         const lastVisiblePageIds =
             scrollTop + clientHeight > pageOffsets[pageOffsets.length - 1]
                 ? pageOffsets.length - 1
