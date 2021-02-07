@@ -13,7 +13,6 @@
     "format": "prettier --write src/**/*.{ts,tsx}",
     "format:check": "prettier --check src/**/*.{ts,tsx}",
     "postpublish": "git push origin --all; git push origin --tags",
-    "version": "git add -A",
     "version:publish": "node buildfile.js"
   },
   "dependencies": {

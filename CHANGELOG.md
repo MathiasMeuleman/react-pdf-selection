@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.15
+Fix wrong visible pages calculations that would break on the edges of the PDF.
+
 ### 0.6.14
 Improvements on selection changes, removing inconsistencies in active selections.
 
