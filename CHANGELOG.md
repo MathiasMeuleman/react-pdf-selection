@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.6.16
+Determine the scrolling element used in virtualization dynamically, instead of using `document`.
+This gives more freedom integrating `react-pdf-selection` in another project.
+
 ### 0.6.15
 Fix wrong visible pages calculations that would break on the edges of the PDF.
 
