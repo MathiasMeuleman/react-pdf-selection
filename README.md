@@ -43,6 +43,7 @@ Property | Type | Required | Notes
 url | `string` | yes | The URL from which the PDF file will be retrieved. Note that CORS headers might be needed if the file resides on a remote server.
 selections | `SelectionType<D>[]` | no | See the `SelectionType` definitions below. Note that the bounding rectangles should be normalized by the page dimensions (so should be between 0 and 1).
 enableAreaSelection | `(event: React.MouseEvent) => boolean` | no | Indicates whether the area selection mode should be enabled. On default the text selection mode is active.
+onLoad | `(originalPageDimensions: PageDimensionData) => void` | no | Is called on document load. The original page dimensions are passed with it.
 onPageDimensions | `(pageDimensionData: PageDimensionData) => void` | no | Is called whenever the page dimensions are recalculatd.
 onTextSelection | `(selection?: NormalizedTextSelection) => void` | no | Is called with the `NormalizedTextSelection` when a new text selection is made, or with `undefined` when the text selection is cancelled/removed.
 onAreaSelection | `(selection?: NormalizedAreaSelection) => void` | no | Is called with the `NormalizedAreaSelection` when a new area selection is made, or with `undefined` when the area selection is cancelled/removed.
@@ -75,8 +76,8 @@ pageOffset | number | yes | The total offset in height, caused by all the `pageN
 
 Property | Type | Required | Notes
 :---|:---|:---|:---
-absolute | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The absolute bounding rectangle of the entire selection, with coordinates corresponding to the current page dimensions.
-normalized | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The normalized bounding rectangle of the entire selection, with coordinates normalized to the current page dimensions.
+absolute | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The absolute bounding rectangles of the selection, with coordinates corresponding to the current page dimensions. The `rects` are the individual bounding rectangles for each line of text (if text selection), the `boundingRect` is the larger encompassing bounding rectangle.
+normalized | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The normalized bounding rectangles of the selection, with coordinates normalized to the current page dimensions. The `rects` are the individual bounding rectangles for each line of text (if text selection), the `boundingRect` is the larger encompassing bounding rectangle.
 pageNumber | number | yes | 1-based page number on which the selection is made.
 pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
 

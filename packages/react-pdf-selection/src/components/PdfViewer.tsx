@@ -1,17 +1,17 @@
-import React, { Component, createRef, CSSProperties, ReactElement, RefObject } from "react";
+import React, {Component, createRef, CSSProperties, ReactElement, RefObject} from "react";
 import isEqual from "react-fast-compare";
-import { Document, pdfjs } from "react-pdf";
+import {Document, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../style/react_pdf_viewer.css";
-import { NormalizedAreaSelection, NormalizedTextSelection, SelectionType } from "../types";
-import { generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow } from "../utils";
-import { normalizePosition } from "../utils/coordinates";
-import { AreaSelectionProps } from "./AreaSelection";
-import { NewAreaSelectionProps } from "./NewAreaSelection";
-import { PageLoader } from "./PageLoader";
-import { PdfPage } from "./PdfPage";
-import { PlaceholderPage } from "./PlaceholderPage";
-import { TextSelectionProps } from "./TextSelection";
+import {NormalizedAreaSelection, NormalizedTextSelection, SelectionType} from "../types";
+import {generateUuid, getBoundingRect, getClientRects, getPageFromRange, getWindow} from "../utils";
+import {normalizePosition} from "../utils/coordinates";
+import {AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelectionProps} from "./NewAreaSelection";
+import {PageLoader} from "./PageLoader";
+import {PdfPage} from "./PdfPage";
+import {PlaceholderPage} from "./PlaceholderPage";
+import {TextSelectionProps} from "./TextSelection";
 
 export enum SelectionMode {
     AREA,
@@ -28,6 +28,7 @@ interface PdfViewerProps<D extends object> {
     scale: number;
     overscanCount: number;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
+    onLoad?: (originalPageDimensions: PageDimensions) => void;
     onPageDimensions?: ({
         pageDimensions,
         pageYOffsets,
@@ -139,28 +140,27 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         this.setState({ selectionMap });
     };
 
-    computePageDimensions = (pdf: pdfjs.PDFDocumentProxy) => {
-        const promises = Array.from({ length: pdf.numPages })
+    computePageDimensions = async (pdf: pdfjs.PDFDocumentProxy) => {
+        const pages = await Promise.all(Array.from({length: pdf.numPages})
             .map((x, i) => i + 1)
             .map((pageNumber) => {
                 return new Promise<pdfjs.PDFPageProxy>((resolve, reject) => {
                     pdf.getPage(pageNumber).then(resolve, reject);
                 });
-            });
+            }));
 
-        Promise.all(promises).then((pages) => {
-            if (!this._mounted) return;
-            const originalPageDimensions: PageDimensions = new Map();
+        if (!this._mounted) return;
+        const originalPageDimensions: PageDimensions = new Map();
 
-            for (const page of pages) {
-                const width = page.view[2];
-                const height = page.view[3];
-                originalPageDimensions.set(page.pageNumber, { width, height });
-            }
+        for (const page of pages) {
+            const width = page.view[2];
+            const height = page.view[3];
+            originalPageDimensions.set(page.pageNumber, { width, height });
+        }
 
-            this.computeScaledPageDimensions(originalPageDimensions);
-            this.setState({ originalPageDimensions });
-        });
+        this.computeScaledPageDimensions(originalPageDimensions);
+        this.setState({ originalPageDimensions });
+        return originalPageDimensions;
     };
 
     computeScaledPageDimensions = (originalPageDimensions: PageDimensions) => {
@@ -307,14 +307,14 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         });
     };
 
-    onScroll = (event: Event) => {
+    onScroll = () => {
         if (!this.scrollingElement || !this.state.pageYOffsets) return;
         const visiblePages = this.getVisiblePages(this.scrollingElement);
         this.setState({ visiblePages });
     };
 
-    onDocumentLoad = (pdf: pdfjs.PDFDocumentProxy) => {
-        this.computePageDimensions(pdf);
+    onDocumentLoad = async (pdf: pdfjs.PDFDocumentProxy) => {
+        const pageDimensions = await this.computePageDimensions(pdf);
         this.setState({ numPages: pdf.numPages, documentUuid: generateUuid() });
         if (this.containerDiv) {
             this.scrollingElement = this.getScrollParent(this.containerDiv);
@@ -323,6 +323,8 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         }
         // SelectionChange event listener does not work on div, only on document?
         document.addEventListener("selectionchange", this.onTextSelectionChange);
+        if (pageDimensions)
+            this.props.onLoad?.(pageDimensions);
     };
 
     renderPages = () => {

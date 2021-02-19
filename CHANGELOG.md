@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.17
+Add `onLoad` function to `PdfViewer` that passes original page dimensions.
+
 ### 0.6.16
 Determine the scrolling element used in virtualization dynamically, instead of using `document`.
 This gives more freedom integrating `react-pdf-selection` in another project.

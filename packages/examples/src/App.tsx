@@ -6,9 +6,12 @@ import { pdfs } from "./example-pdfs";
 
 const Viewer = ({ document }: { document: ReactElement }) => {
     return (
-        <div style={{ display: "flex", flexDirection: "row" }}>
-            <div style={{ width: "60%" }}>{document}</div>
-            <div style={{ width: "40%" }}>Sidebar</div>
+        <div>
+            <div style={{width: "100vw", height: "200px"}} />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ width: "60%" }}>{document}</div>
+                <div style={{ width: "40%" }}>Sidebar</div>
+            </div>
         </div>
     );
 };
@@ -24,6 +27,7 @@ const App = () => {
         (highlightTip?: NormalizedSelection) => {
             console.log(
                 highlightTip ? `New ${"image" in highlightTip ? "area" : "text"} selection` : "Reset selection",
+                highlightTip?.position,
             );
             setSelection(highlightTip);
         },
@@ -41,6 +45,7 @@ const App = () => {
                         scale={scale}
                         onTextSelection={setAndLogSelection}
                         onAreaSelection={setAndLogSelection}
+                        onLoad={dims => console.log(dims)}
                     >
                         {({ document }) => <Viewer document={document} />}
                     </PdfViewer>
