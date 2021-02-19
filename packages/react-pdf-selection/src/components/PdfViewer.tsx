@@ -18,7 +18,12 @@ export enum SelectionMode {
     TEXT,
 }
 
-export type PageDimensions = Map<number, { width: number; height: number }>;
+export enum PDFOrientation {
+    PORTRAIT = "portrait",
+    LANDSCAPE = "landscape",
+}
+
+export type PageDimensions = Map<number, { width: number; height: number; orientation: PDFOrientation }>;
 
 interface PdfViewerProps<D extends object> {
     children?: (props: { document: ReactElement }) => ReactElement;
@@ -155,7 +160,8 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         for (const page of pages) {
             const width = page.view[2];
             const height = page.view[3];
-            originalPageDimensions.set(page.pageNumber, { width, height });
+            const orientation = page.rotate === 90 ? PDFOrientation.LANDSCAPE : PDFOrientation.PORTRAIT;
+            originalPageDimensions.set(page.pageNumber, { width, height, orientation });
         }
 
         this.computeScaledPageDimensions(originalPageDimensions);
@@ -172,7 +178,7 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
         originalPageDimensions.forEach((dimension, pageNumber) => {
             const width = dimension.width * this.props.scale;
             const height = dimension.height * this.props.scale;
-            pageDimensions.set(pageNumber, { width, height });
+            pageDimensions.set(pageNumber, { width, height, orientation: dimension.orientation });
             if (pageNumber < originalPageDimensions.size)
                 pageYOffsets[pageNumber] = pageYOffsets[pageNumber - 1] + height + this.BORDER_WIDTH_OFFSET;
         });

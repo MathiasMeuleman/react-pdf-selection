@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.18
+Add orientation to `PageDimensions`.
+
 ### 0.6.17
 Add `onLoad` function to `PdfViewer` that passes original page dimensions.
 
