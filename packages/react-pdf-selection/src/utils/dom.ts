@@ -1,4 +1,4 @@
-export const getDocument = (elm: any): Document => (elm || {}).ownerDocument || document;
+const getDocument = (elm: any): Document => (elm || {}).ownerDocument || document;
 
 export const getWindow = (elm: any): typeof window => (getDocument(elm) || {}).defaultView || window;
 
@@ -18,17 +18,4 @@ export const getPageFromRange = (range: Range) => {
     if (!parentElement) return;
 
     return getPageFromElement(parentElement);
-};
-
-export const findOrCreateContainerLayer = (container: HTMLElement, className: string) => {
-    const doc = getDocument(container);
-    let layer = container.querySelector(`.${className}`);
-
-    if (!layer) {
-        layer = doc.createElement("div");
-        layer.className = className;
-        container.appendChild(layer);
-    }
-
-    return layer;
 };
