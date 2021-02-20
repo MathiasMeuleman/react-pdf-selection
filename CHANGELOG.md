@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.19
+Render pages in landscape mode correctly.
+
 ### 0.6.18
 Add orientation to `PageDimensions`.
 

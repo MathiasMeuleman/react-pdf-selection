@@ -23,7 +23,8 @@ export enum PDFOrientation {
     LANDSCAPE = "landscape",
 }
 
-export type PageDimensions = Map<number, { width: number; height: number; orientation: PDFOrientation }>;
+export type PageDimension = { width: number; height: number; orientation: PDFOrientation };
+export type PageDimensions = Map<number, PageDimension>;
 
 interface PdfViewerProps<D extends object> {
     children?: (props: { document: ReactElement }) => ReactElement;

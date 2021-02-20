@@ -1,6 +1,6 @@
-import React, { Component, createRef, CSSProperties, Fragment, RefObject } from "react";
+import React, {Component, createRef, CSSProperties, Fragment, RefObject} from "react";
 import isEqual from "react-fast-compare";
-import { Page } from "react-pdf";
+import {Page} from "react-pdf";
 import {
     BoundingRect,
     Coords,
@@ -9,13 +9,13 @@ import {
     NormalizedPosition,
     SelectionType,
 } from "../types";
-import { getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow } from "../utils";
-import { getPositionWithCSSProperties, normalizePosition } from "../utils/coordinates";
-import { AreaSelection, AreaSelectionProps } from "./AreaSelection";
-import { NewAreaSelection, NewAreaSelectionProps } from "./NewAreaSelection";
-import { PageLoader } from "./PageLoader";
-import { SelectionMode } from "./PdfViewer";
-import { TextSelection, TextSelectionProps } from "./TextSelection";
+import {getAbsoluteBoundingRectWithCSSProperties, getAreaAsPNG, getWindow} from "../utils";
+import {getPositionWithCSSProperties, normalizePosition} from "../utils/coordinates";
+import {AreaSelection, AreaSelectionProps} from "./AreaSelection";
+import {NewAreaSelection, NewAreaSelectionProps} from "./NewAreaSelection";
+import {PageLoader} from "./PageLoader";
+import {PageDimension, PDFOrientation} from "./PdfViewer";
+import {TextSelection, TextSelectionProps} from "./TextSelection";
 
 export interface PdfPageProps<D extends object> {
     pageNumber: number;
@@ -23,7 +23,7 @@ export interface PdfPageProps<D extends object> {
     innerRef: RefObject<HTMLDivElement>;
     areaSelectionActive: boolean;
     enableAreaSelection?: (event: React.MouseEvent) => boolean;
-    pageDimensions?: { width: number; height: number };
+    pageDimensions?: PageDimension;
     selections?: SelectionType<D>[];
     onAreaSelectionStart?: (pageNumber: number) => void;
     onAreaSelectionChange?: (pageNumber: number) => void;
@@ -44,6 +44,12 @@ interface PdfPageState {
         locked?: boolean;
     };
 }
+
+export const getPageWidth = ({ orientation, height, width }: PageDimension) =>
+    orientation === PDFOrientation.PORTRAIT ? width : height;
+
+export const getPageHeight = ({ orientation, height, width }: PageDimension) =>
+    orientation === PDFOrientation.PORTRAIT ? height : width;
 
 export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPageState> {
     state: PdfPageState = {
@@ -214,7 +220,10 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
                 style={{
                     // @ts-ignore-next-line A bit hacky, but it works to set a custom ::selection color programmatically
                     "--selection-color": this.props.textSelectionColor,
-                    ...(pageDimensions ? { width: `${pageDimensions.width}px` } : {}),
+                    ...(pageDimensions ? {
+                        width: `${getPageWidth(pageDimensions)}px`,
+                        height: `${getPageHeight(pageDimensions)}px`,
+                    } : {}),
                     ...this.props.style,
                 }}
                 onPointerDown={this.onMouseDown}
@@ -222,8 +231,8 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
                 <Page
                     key={`page_${pageNumber}`}
                     pageNumber={pageNumber}
-                    width={pageDimensions?.width}
-                    height={pageDimensions?.height}
+                    width={pageDimensions ? getPageWidth(pageDimensions) : undefined}
+                    height={pageDimensions ? getPageHeight(pageDimensions) : undefined}
                     inputRef={this.inputRef}
                     loading={<PageLoader />}
                     onLoadSuccess={this.onPageLoad}
