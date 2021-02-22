@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.6.20
+Fix some more landscape mode issues
+
 ### 0.6.19
 Render pages in landscape mode correctly.
 

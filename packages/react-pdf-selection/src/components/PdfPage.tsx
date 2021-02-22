@@ -118,11 +118,14 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         const pageBoundaries = {
             top: 0,
             left: 0,
-            right: pageDimensions.width,
-            bottom: pageDimensions.height,
+            right: getPageWidth(pageDimensions),
+            bottom: getPageHeight(pageDimensions),
         };
         const boundingRect = this.getBoundingRect(areaSelection.start, end, pageBoundaries);
-        return normalizePosition({ boundingRect, rects: [boundingRect], pageNumber }, pageDimensions);
+        return normalizePosition(
+            { boundingRect, rects: [boundingRect], pageNumber },
+            { height: getPageHeight(pageDimensions), width: getPageWidth(pageDimensions) },
+        );
     };
 
     onAreaSelectChange = (event: MouseEvent) => {
@@ -187,7 +190,10 @@ export class PdfPage<D extends object> extends Component<PdfPageProps<D>, PdfPag
         if (!this.inputRef || !selections) return null;
         const selectionRenders = selections.map((selection, i) => {
             if (!pageDimensions) return null;
-            const position = getPositionWithCSSProperties(selection.position, pageDimensions);
+            const position = getPositionWithCSSProperties(
+                selection.position,
+                { height: getPageHeight(pageDimensions), width: getPageWidth(pageDimensions) },
+            );
             const normalizedSelection = { ...selection, position };
             return isAreaSelection(normalizedSelection) ? (
                 areaSelectionComponent ? (
