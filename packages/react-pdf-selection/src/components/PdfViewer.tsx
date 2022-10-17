@@ -48,6 +48,7 @@ interface PdfViewerProps<D extends object> {
     textSelectionComponent?: (props: TextSelectionProps<D>) => JSX.Element;
     areaSelectionComponent?: (props: AreaSelectionProps<D>) => JSX.Element;
     newAreaSelectionComponent?: (props: NewAreaSelectionProps) => JSX.Element;
+    pageIndex?:  number;
 }
 
 interface PdfViewerState<D extends object> {
@@ -335,6 +336,26 @@ export class PdfViewer<D extends object> extends Component<PdfViewerProps<D>, Pd
     };
 
     renderPages = () => {
+        const {pageIndex} = this.props;
+        if(pageIndex){
+            const props = {
+                style: {},
+                pageNumber : pageIndex,
+                innerRef: this.getPageRef(pageIndex ),
+                areaSelectionActive: this.state.areaSelectionActivePage === pageIndex,
+                enableAreaSelection: this.props.enableAreaSelection,
+                pageDimensions: this.state.pageDimensions?.get(pageIndex),
+                selections: this.state.selectionMap?.get(pageIndex),
+                onAreaSelectionChange: this.onAreaSelectionChange,
+                onAreaSelectionEnd: this.onAreaSelectionEnd,
+                textSelectionColor: this.props.textSelectionColor ?? "#0000ff33",
+                areaSelectionComponent: this.props.areaSelectionComponent,
+                textSelectionComponent: this.props.textSelectionComponent,
+                newAreaSelectionComponent: this.props.newAreaSelectionComponent,
+            };
+            return <PdfPage key={this.getItemKey(pageIndex-1)} {...props} />;
+        }
+
         return Array.from(new Array(this.state.numPages), (el, i) => {
             const pageNumber = i + 1;
             if (!this.state.visiblePages || !this.state.visiblePages.includes(i))

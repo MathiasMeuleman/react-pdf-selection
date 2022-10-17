@@ -5,20 +5,22 @@ export type TextSelectionProps<D extends object = {}> = {
     textSelection: TextSelectionWithCSSProperties<D>;
 };
 
-export const TextSelection = ({ textSelection }: TextSelectionProps) => (
+export const TextSelection = ({ textSelection }: TextSelectionProps) => {
+    const {color = "#ffe28f", position } =textSelection;
+    return (
     <div>
-        {textSelection.position.rects.map((rect, i) => (
+        {position.rects.map((rect, i) => (
             <div
                 key={i}
                 style={{
                     ...rect,
                     cursor: "pointer",
                     position: "absolute",
-                    background: "rgba(255, 226, 143, 1)",
+                    background: color,
                     mixBlendMode: "multiply",
                     transition: "background 0.3s",
                 }}
-            />
+           />
         ))}
     </div>
-);
+)};

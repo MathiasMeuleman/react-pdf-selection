@@ -42,6 +42,7 @@ export type Coords = {
 export type TextSelectionType<D extends object = {}> = D & {
     text: string;
     position: Position;
+    color?: CSSProperties["color"];
 };
 
 export type AreaSelectionType<D extends object = {}> = D & {
@@ -66,6 +67,7 @@ export type NormalizedSelection = NormalizedTextSelection | NormalizedAreaSelect
 export type TextSelectionWithCSSProperties<D extends object = {}> = D & {
     text: string;
     position: PositionWithCSSProperties;
+    color?: CSSProperties["color"];
 };
 
 export type AreaSelectionWithCSSProperties<D extends object = {}> = D & {
