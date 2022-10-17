@@ -1,6 +1,6 @@
 {
-  "name": "react-pdf-selection",
-  "version": "0.6.20",
+  "name": "@apfii/react-pdf-selection",
+  "version": "0.1.5",
   "description": "Library of React components needed for text and area selections in PDF documents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,10 +46,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MathiasMeuleman/react-pdf-selection.git"
+    "url": "git+https://github.com/Apfii/react-pdf-selection.git"
   },
   "bugs": {
-    "url": "https://github.com/MathiasMeuleman/react-pdf-selection/issues"
+    "url": "https://github.com/Apfii/react-pdf-selection/issues"
   },
-  "homepage": "https://github.com/MathiasMeuleman/react-pdf-selection#readme"
+  "homepage": "https://github.com/Apfii/react-pdf-selection#readme"
 }
