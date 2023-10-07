@@ -1,3 +1,5 @@
+This is an adoption of work originally made by [Mathias Meuleman](https://github.com/MathiasMeuleman/react-pdf-selection) as the project apparently is no longer being maintained.
+
 # React PDF Selection
 
 This library provides text and rectangular area selections for PDF documents. It is built on top of PDF.js by Mozilla.
@@ -7,9 +9,9 @@ storage. PDF pages are virtualized to prevent too many page renders and make ren
 Installation is simply done with `npm` or `yarn`:
 
 ```
-npm install react-pdf-selection
-// or 
-yarn install react-pdf-selection
+npm install @nextgen-ec/react-pdf-selection
+// or
+yarn install @nextgen-ec/react-pdf-selection
 ```
 
 After this, the `PdfViewer` component can be used to create a PDF viewer on which selections can be made.
@@ -70,7 +72,7 @@ Property | Type | Required | Notes
 boundingRect | `BoundingRect` | yes | The bounding rectangle of the entire selection.
 rects | `BoundingRect[]` | yes | The bounding rectangle of each of the selections rectangles. In case of an area selection, this is equal to `boundingRect`, in case of a text selection there is one `BoundingRect` for each line of selected text.
 pageNumber | number | yes | 1-based page number on which the selection is made.
-pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
+pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one.
 
 #### `NormalizedPosition`
 
@@ -79,7 +81,7 @@ Property | Type | Required | Notes
 absolute | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The absolute bounding rectangles of the selection, with coordinates corresponding to the current page dimensions. The `rects` are the individual bounding rectangles for each line of text (if text selection), the `boundingRect` is the larger encompassing bounding rectangle.
 normalized | `{boundingRect: BoundingRect; rects: BoundingRect[]}` | yes | The normalized bounding rectangles of the selection, with coordinates normalized to the current page dimensions. The `rects` are the individual bounding rectangles for each line of text (if text selection), the `boundingRect` is the larger encompassing bounding rectangle.
 pageNumber | number | yes | 1-based page number on which the selection is made.
-pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one. 
+pageOffset | number | yes | The total offset in height, caused by all the `pageNumber - 1` pages before this one.
 
 #### `BoundingRect`
 
@@ -110,7 +112,7 @@ pageYOffsets | `number[]` | An array of page height offsets, indicating at what 
 - `pageNumber`: `number`
 - `boundingRect`: `BoundingRectWithCSSProperties`
 - `rects`: `BoundingRectWithCSSProperties[]`
-  
+
 #### Shared components
 ##### AreaSelectionComponent
 Can be provided to override the default `AreaSelection` component. Should be a React class component or function component

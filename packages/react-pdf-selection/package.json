@@ -1,6 +1,6 @@
 {
-  "name": "react-pdf-selection",
-  "version": "0.6.20",
+  "name": "@nextgen-ec/react-pdf-selection",
+  "version": "0.6.21",
   "description": "Library of React components needed for text and area selections in PDF documents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -34,7 +34,7 @@
     "replace-in-file": "^6.1.0",
     "typescript": "^4.1.3"
   },
-  "author": "Mathias Meuleman <meuleman.mathias@gmail.com>",
+  "author": "NextGen-EC <it.admin@nextgen.ec>",
   "license": "MIT",
   "keywords": [
     "pdf",
@@ -46,10 +46,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MathiasMeuleman/react-pdf-selection.git"
+    "url": "git+https://github.com/NextGen-ec/react-pdf-selection.git"
   },
   "bugs": {
-    "url": "https://github.com/MathiasMeuleman/react-pdf-selection/issues"
+    "url": "https://github.com/NextGen-ec/react-pdf-selection/issues"
   },
-  "homepage": "https://github.com/MathiasMeuleman/react-pdf-selection#readme"
+  "homepage": "https://github.com/NextGen-ec/react-pdf-selection#readme"
 }
